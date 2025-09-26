@@ -2,6 +2,8 @@ package config
 
 import (
 	"log"
+	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/viper"
 )
@@ -21,10 +23,16 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	viper.SetConfigFile("../.env")
+	// Get the directory where this config.go file is located
+	_, filename, _, _ := runtime.Caller(0)
+	kafkaConfigDir := filepath.Dir(filename)
+	kafkaRootDir := filepath.Dir(kafkaConfigDir) // Go up one level to kafka/
+
+	viper.SetConfigFile(filepath.Join(kafkaRootDir, ".env"))
 	viper.AutomaticEnv()
+
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file, %s", err)
+		log.Fatalf("Kafka: Error reading config file, %s", err)
 	}
 
 	var config Config

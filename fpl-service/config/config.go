@@ -2,6 +2,8 @@ package config
 
 import (
 	"log"
+	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/viper"
 )
@@ -36,13 +38,27 @@ type Config struct {
 	FplApiLiveEvent             string `mapstructure:"FPL_API_LIVE_EVENT"`
 	FplApiLeagueClassicStanding string `mapstructure:"FPL_API_LEAGUE_CLASSIC_STANDING"`
 	FplApiLeagueH2hStanding     string `mapstructure:"FPL_API_LEAGUE_H2H_STANDING"`
+
+	// Consumer Group IDs
+	FplTeamsConsumerGroupID    string `mapstructure:"KAFKA_TEAMS_CONSUMER_GROUP_ID"`
+	FplFixturesConsumerGroupID string `mapstructure:"KAFKA_FIXTURES_CONSUMER_GROUP_ID"`
+	FplPlayersConsumerGroupID  string `mapstructure:"KAFKA_PLAYERS_CONSUMER_GROUP_ID"`
+
+	FplStatsConsumerGroupID string `mapstructure:"KAFKA_STATS_CONSUMER_GROUP_ID"`
+
+	FplTestConsumerGroupID string `mapstructure:"KAFKA_TEST_CONSUMER_GROUP_ID"`
 }
 
 func LoadConfig() *Config {
-	viper.SetConfigFile("../.env")
+	// Get the directory where this config.go file is located
+	_, filename, _, _ := runtime.Caller(0)
+	ConfigDir := filepath.Dir(filename)
+	RootDir := filepath.Dir(ConfigDir) // Go up one level to fpl-service/
+
+	viper.SetConfigFile(filepath.Join(RootDir, ".env"))
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file, %s", err)
+		log.Fatalf("fpl-service: Error reading config file, %s", err)
 	}
 
 	var config Config

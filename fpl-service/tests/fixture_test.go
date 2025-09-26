@@ -6,17 +6,16 @@ import (
 	"time"
 
 	fplApi "github.com/imadbelkat1/fpl-service/internal/api"
-
-	teamService "github.com/imadbelkat1/fpl-service/internal/services"
+	fixutreService "github.com/imadbelkat1/fpl-service/internal/services"
 )
 
-func TestTeamApiService_RealAPI(t *testing.T) {
+func TestFixturesApiService_RealAPI(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping real API test")
 	}
 
 	// Setup service with real client
-	service := &teamService.TeamApiService{
+	service := &fixutreService.FixturesApiService{
 		Client: fplApi.NewFplApiClient(),
 	}
 
@@ -25,9 +24,9 @@ func TestTeamApiService_RealAPI(t *testing.T) {
 
 	// Test with real API
 	log.Println("Calling FPL API...")
-	err := service.UpdateTeams()
+	err := service.UpdateFixtures()
 	if err != nil {
-		t.Fatalf("UpdateTeams with API failed: %v", err)
+		t.Fatalf("UpdateFixtures with API failed: %v", err)
 	}
 
 	// Wait for messages to be processed

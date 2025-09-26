@@ -14,18 +14,18 @@ type Producer struct {
 }
 
 func NewProducer() *Producer {
-	cfg := config.LoadConfig()
+	kafkaCfg := config.LoadConfig()
 
 	return &Producer{
 		writer: &kafka.Writer{
-			Addr:            kafka.TCP(cfg.KafkaBroker),
-			RequiredAcks:    kafka.RequiredAcks(parseAcks(cfg.KafkaAcks)),
+			Addr:            kafka.TCP(kafkaCfg.KafkaBroker),
+			RequiredAcks:    kafka.RequiredAcks(parseAcks(kafkaCfg.KafkaAcks)),
 			Async:           false,
-			Compression:     parseCompression(cfg.KafkaCompressionType),
-			BatchSize:       cfg.KafkaBatchSize,
-			BatchTimeout:    time.Duration(cfg.KafkaLingerMs) * time.Millisecond,
-			WriteBackoffMin: time.Duration(cfg.KafkaRetryBackoffMs) * time.Millisecond,
-			WriteTimeout:    time.Duration(cfg.KafkaDeliveryTimeoutMs) * time.Millisecond,
+			Compression:     parseCompression(kafkaCfg.KafkaCompressionType),
+			BatchSize:       kafkaCfg.KafkaBatchSize,
+			BatchTimeout:    time.Duration(kafkaCfg.KafkaLingerMs) * time.Millisecond,
+			WriteBackoffMin: time.Duration(kafkaCfg.KafkaRetryBackoffMs) * time.Millisecond,
+			WriteTimeout:    time.Duration(kafkaCfg.KafkaDeliveryTimeoutMs) * time.Millisecond,
 		},
 	}
 }

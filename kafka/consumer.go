@@ -12,10 +12,11 @@ type Consumer struct {
 	reader *kafka.Reader
 }
 
-func NewConsumer(cfg *config.Config, topic string) *Consumer {
+func NewConsumer(cfg *config.Config, topic string, consumerGroupID string) *Consumer {
 	return &Consumer{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: []string{cfg.KafkaBroker},
+			GroupID: consumerGroupID,
 			Topic:   topic,
 		}),
 	}

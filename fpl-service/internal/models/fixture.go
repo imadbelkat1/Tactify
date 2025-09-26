@@ -30,3 +30,5 @@ type StatElement struct {
 	Value   int `json:"value" db:"value"`
 	Element int `json:"element" db:"player_id"`
 }
+
+type Fixtures []Fixture
