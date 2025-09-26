@@ -7,8 +7,21 @@ import (
 )
 
 type Config struct {
-	//kafka
-	KafkaTopics []string `mapstructure:"KAFKA_TOPICS"`
+	// FPL Core Data Topics
+	FplPlayersTopic  string `mapstructure:"FPL_PLAYERS_TOPIC"`
+	FplTeamsTopic    string `mapstructure:"FPL_TEAMS_TOPIC"`
+	FplFixturesTopic string `mapstructure:"FPL_FIXTURES_TOPIC"`
+
+	// FPL Entry Topics
+	FplEntryTopic          string `mapstructure:"FPL_ENTRY_TOPIC"`
+	FplEntryEventTopic     string `mapstructure:"FPL_ENTRY_EVENT_TOPIC"`
+	FplEntryHistoryTopic   string `mapstructure:"FPL_ENTRY_HISTORY_TOPIC"`
+	FplEntryTransfersTopic string `mapstructure:"FPL_ENTRY_TRANSFERS_TOPIC"`
+	FplEntryPicksTopic     string `mapstructure:"FPL_ENTRY_PICKS_TOPIC"`
+
+	// FPL League Topics
+	FplLeagueClassicStandingTopic string `mapstructure:"FPL_LEAGUE_CLASSIC_STANDING_TOPIC"`
+	FplLeagueH2hStandingTopic     string `mapstructure:"FPL_LEAGUE_H2H_STANDING_TOPIC"`
 
 	//fpl api
 	FplApiBaseUrl               string `mapstructure:"FPL_API_BASE_URL"`
