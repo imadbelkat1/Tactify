@@ -1,4 +1,4 @@
-module tactify/kafka
+module github.com/imadbelkat1/kafka
 
 go 1.24
 

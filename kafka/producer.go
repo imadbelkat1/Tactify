@@ -1,9 +1,10 @@
-package internal
+package kafka
 
 import (
 	"context"
-	"tactify/kafka/config"
 	"time"
+
+	"github.com/imadbelkat1/kafka/config"
 
 	"github.com/segmentio/kafka-go"
 )

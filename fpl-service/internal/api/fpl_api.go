@@ -6,12 +6,20 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"tactify/fpl-service/config"
+
+	"github.com/imadbelkat1/fpl-service/config"
 )
 
 type FplApiClient struct {
-	httpClient *http.Client
-	userAgent  string
+	HttpClient *http.Client
+	UserAgent  string
+}
+
+func NewFplApiClient() *FplApiClient {
+	return &FplApiClient{
+		HttpClient: &http.Client{},
+		UserAgent:  "FPL-Service-Client/1.0",
+	}
 }
 
 func (c *FplApiClient) Get(ctx context.Context, endpoint string) ([]byte, error) {
@@ -19,7 +27,6 @@ func (c *FplApiClient) Get(ctx context.Context, endpoint string) ([]byte, error)
 	cfg := config.LoadConfig()
 	baseURL := cfg.FplApiBaseUrl
 
-	endpoint = baseURL + endpoint
 	url := fmt.Sprintf("%s%s", baseURL, endpoint)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
@@ -27,10 +34,10 @@ func (c *FplApiClient) Get(ctx context.Context, endpoint string) ([]byte, error)
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", c.userAgent)
+	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("making request: %w", err)
 	}

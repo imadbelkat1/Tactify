@@ -2,7 +2,8 @@ package kafka
 
 import (
 	"context"
-	"tactify/kafka/config"
+
+	"github.com/imadbelkat1/kafka/config"
 
 	"github.com/segmentio/kafka-go"
 )

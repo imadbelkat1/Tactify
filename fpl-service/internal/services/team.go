@@ -2,31 +2,41 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"tactify/fpl-service/config"
-	"tactify/fpl-service/internal/api"
-	"tactify/fpl-service/internal/models"
 
-	producer "tactify/kafka/internal/producer"
+	"github.com/imadbelkat1/fpl-service/config"
+	"github.com/imadbelkat1/fpl-service/internal/api"
+	"github.com/imadbelkat1/fpl-service/internal/models"
+
+	teamProducer "github.com/imadbelkat1/kafka"
 )
 
 type TeamApiService struct {
-	client *fpl_api.FplApiClient
+	Client *fpl_api.FplApiClient
 }
 
 func (s *TeamApiService) UpdateTeams() error {
 	var bootstrap models.BootstrapResponse
-	producer = producer.NewProducer()
+	producer := teamProducer.NewProducer()
 	ctx := context.Background()
 
 	cfg := config.LoadConfig()
 	endpoint := cfg.FplApiBootstrap
 
-	if err := s.client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
 		return err
 	}
 
 	for _, t := range bootstrap.Teams {
+		teamJSON, err := json.Marshal(t)
+		if err != nil {
+			return fmt.Errorf("marshaling team: %w", err)
+		}
+		err = producer.Publish(ctx, cfg.FplTeamsTopic, []byte(fmt.Sprintf("%d", t.ID)), teamJSON)
+		if err != nil {
+			return fmt.Errorf("publishing team to Kafka error: %w", err)
+		}
 	}
 
 	return nil
@@ -39,7 +49,7 @@ func (s *TeamApiService) GetTeam(id int) (*models.Team, error) {
 	cfg := config.LoadConfig()
 	endpoint := cfg.FplApiBootstrap
 
-	if err := s.client.GetAndUnmarshal(ctx, endpoint, bootstrap); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, endpoint, bootstrap); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +68,7 @@ func (s *TeamApiService) GetAllTeams(ctx context.Context) ([]models.Team, error)
 	cfg := config.LoadConfig()
 	endpoint := cfg.FplApiBootstrap
 
-	if err := s.client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +82,7 @@ func (s *TeamApiService) GetTeamsByStrength(minStrength int) ([]models.Team, err
 	cfg := config.LoadConfig()
 	endpoint := cfg.FplApiBootstrap
 
-	if err := s.client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
 		return nil, err
 	}
 

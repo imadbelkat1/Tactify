@@ -1,7 +1,7 @@
 package services
 
 import (
-	model "tactify/fpl-service/internal/models"
+	model "github.com/imadbelkat1/fpl-service/internal/models"
 )
 
 // Services aggregates all service interfaces for FPL data
