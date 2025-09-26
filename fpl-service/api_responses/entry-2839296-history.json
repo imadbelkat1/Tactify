@@ -1,0 +1,98 @@
+{
+  "current": [
+    {
+      "event": 1,
+      "points": 75,
+      "total_points": 75,
+      "rank": 468092,
+      "rank_sort": 490896,
+      "overall_rank": 468092,
+      "percentile_rank": 5,
+      "bank": 0,
+      "value": 1000,
+      "event_transfers": 0,
+      "event_transfers_cost": 0,
+      "points_on_bench": 8
+    },
+    {
+      "event": 2,
+      "points": 59,
+      "total_points": 134,
+      "rank": 2894935,
+      "rank_sort": 2922657,
+      "overall_rank": 441860,
+      "percentile_rank": 30,
+      "bank": 15,
+      "value": 1001,
+      "event_transfers": 1,
+      "event_transfers_cost": 0,
+      "points_on_bench": 3
+    },
+    {
+      "event": 3,
+      "points": 63,
+      "total_points": 197,
+      "rank": 1053483,
+      "rank_sort": 1068082,
+      "overall_rank": 154101,
+      "percentile_rank": 10,
+      "bank": 15,
+      "value": 1004,
+      "event_transfers": 0,
+      "event_transfers_cost": 0,
+      "points_on_bench": 10
+    },
+    {
+      "event": 4,
+      "points": 83,
+      "total_points": 280,
+      "rank": 773050,
+      "rank_sort": 781451,
+      "overall_rank": 63090,
+      "percentile_rank": 10,
+      "bank": 0,
+      "value": 1007,
+      "event_transfers": 1,
+      "event_transfers_cost": 0,
+      "points_on_bench": 4
+    },
+    {
+      "event": 5,
+      "points": 53,
+      "total_points": 333,
+      "rank": 1811822,
+      "rank_sort": 1847039,
+      "overall_rank": 48176,
+      "percentile_rank": 20,
+      "bank": 4,
+      "value": 1009,
+      "event_transfers": 0,
+      "event_transfers_cost": 0,
+      "points_on_bench": 14
+    }
+  ],
+  "past": [
+    {
+      "season_name": "2022/23",
+      "total_points": 2393,
+      "rank": 706350
+    },
+    {
+      "season_name": "2023/24",
+      "total_points": 2279,
+      "rank": 1246234
+    },
+    {
+      "season_name": "2024/25",
+      "total_points": 2380,
+      "rank": 718464
+    }
+  ],
+  "chips": [
+    {
+      "name": "wildcard",
+      "time": "2025-09-17T15:20:58.937481Z",
+      "event": 5
+    }
+  ]
+}
