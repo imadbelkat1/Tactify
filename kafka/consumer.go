@@ -15,7 +15,6 @@ func NewConsumer(cfg *config.Config, groupID, topic string) *Consumer {
 	return &Consumer{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: []string{cfg.KafkaBroker},
-			GroupID: groupID,
 			Topic:   topic,
 		}),
 	}
