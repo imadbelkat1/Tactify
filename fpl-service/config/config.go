@@ -10,9 +10,10 @@ import (
 
 type Config struct {
 	// FPL Core Data Topics
-	FplPlayersTopic  string `mapstructure:"FPL_PLAYERS_TOPIC"`
-	FplTeamsTopic    string `mapstructure:"FPL_TEAMS_TOPIC"`
-	FplFixturesTopic string `mapstructure:"FPL_FIXTURES_TOPIC"`
+	FplPlayersTopic          string `mapstructure:"FPL_PLAYERS_TOPIC"`
+	FplTeamsTopic            string `mapstructure:"FPL_TEAMS_TOPIC"`
+	FplFixturesTopic         string `mapstructure:"FPL_FIXTURES_TOPIC"`
+	FplPlayerMatchStatsTopic string `mapstructure:"FPL_PLAYER_MATCH_STATS_TOPIC"`
 
 	// FPL Entry Topics
 	FplEntryTopic          string `mapstructure:"FPL_ENTRY_TOPIC"`

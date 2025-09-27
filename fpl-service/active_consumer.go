@@ -17,6 +17,7 @@ func main() {
 	topics := []string{
 		cfg.FplTeamsTopic,
 		cfg.FplFixturesTopic,
+		cfg.FplPlayerMatchStatsTopic,
 		// Add other topics here as needed
 	}
 
@@ -24,6 +25,7 @@ func main() {
 	consumerGroupID := []string{
 		cfg.FplTeamsConsumerGroupID,
 		cfg.FplFixturesConsumerGroupID,
+		cfg.FplStatsConsumerGroupID,
 		// Add other consumer group IDs here as needed
 	}
 
@@ -35,7 +37,12 @@ func main() {
 				topicName,
 				groupID,
 			)
-			defer consumer.Close()
+			defer func(consumer *kafka.Consumer) {
+				err := consumer.Close()
+				if err != nil {
+					fmt.Printf("Error closing consumer for topic %s: %v\n", topicName, err)
+				}
+			}(consumer)
 
 			ctx := context.Background()
 			messages, errors := consumer.Subscribe(ctx)

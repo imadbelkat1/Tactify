@@ -14,7 +14,7 @@ type Fixture struct {
 	TeamAScore           int           `json:"team_a_score" db:"team_a_score"`
 	TeamH                int           `json:"team_h" db:"team_h"`
 	TeamHScore           int           `json:"team_h_score" db:"team_h_score"`
-	Stats                []FixtureStat `json:"stats"`
+	Stats                []FixtureStat `json:"stats,omitempty"`
 	TeamHDifficulty      int           `json:"team_h_difficulty" db:"team_h_difficulty"`
 	TeamADifficulty      int           `json:"team_a_difficulty" db:"team_a_difficulty"`
 	PulseID              int           `json:"pulse_id" db:"pulse_id"`

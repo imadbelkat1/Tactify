@@ -9,7 +9,7 @@ import (
 	fpl_api "github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/fpl-service/internal/models"
 
-	fixtureProducer "github.com/imadbelkat1/kafka"
+	Producer "github.com/imadbelkat1/kafka"
 )
 
 type FixturesApiService struct {
@@ -18,7 +18,9 @@ type FixturesApiService struct {
 
 func (s *FixturesApiService) UpdateFixtures() error {
 	var fixtures models.Fixtures
-	producer := fixtureProducer.NewProducer()
+	fixtureProducer := Producer.NewProducer()
+	statsProducer := Producer.NewProducer()
+
 	ctx := context.Background()
 
 	cfg := config.LoadConfig()
@@ -32,24 +34,42 @@ func (s *FixturesApiService) UpdateFixtures() error {
 		// Separate stats from fixture before marshaling
 		fixtureStatsJSON, err := json.Marshal(f.Stats)
 
-		fixtureBytes, err := json.Marshal(f)
+		newFixture, err := deleteKey(f, "stats")
 		if err != nil {
-			return fmt.Errorf("failed to marshal fixture with ID: %d: %v", f.ID, err)
+			return fmt.Errorf("failed to delete stats key from fixture with ID: %d: %v", f.ID, err)
 		}
 
-		var newFixture map[string]interface{}
-		err = json.Unmarshal(fixtureBytes, &newFixture)
-		if err != nil {
-			return fmt.Errorf("failed to unmarshal fixture with ID: %d: %v", f.ID, err)
-		}
-
-		delete(newFixture, "stats")
+		// Marshal the modified fixture without stats
 		fixtureJSON, err := json.Marshal(newFixture)
 
 		err = fixtureProducer.Publish(ctx, cfg.FplFixturesTopic, []byte(fmt.Sprintf("%d", f.ID)), fixtureJSON)
 		if err != nil {
 			return fmt.Errorf("failed to publish fixture with ID: %d to Kafka: %v", f.ID, err)
 		}
+
+		err = statsProducer.Publish(ctx, cfg.FplPlayerMatchStatsTopic, []byte(fmt.Sprintf("%d", f.ID)), fixtureStatsJSON)
+		if err != nil {
+			return fmt.Errorf("failed to publish fixture stats for fixture with ID: %d to Kafka: %v", f.ID, err)
+		}
 	}
 	return nil
+}
+
+func deleteKey(T any, key string) (map[string]interface{}, error) {
+	Bytes, err := json.Marshal(T)
+	if err != nil {
+		fmt.Println("Error marshaling struct:", err)
+		return nil, err
+	}
+
+	var data map[string]interface{}
+	err = json.Unmarshal(Bytes, &data)
+	if err != nil {
+		fmt.Println("Error unmarshaling to map:", err)
+		return nil, err
+	}
+
+	delete(data, key)
+
+	return data, nil
 }
