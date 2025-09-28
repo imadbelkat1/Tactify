@@ -2,14 +2,11 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"sync"
 
-	"github.com/imadbelkat1/fpl-service/config"
 	fpl_api "github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/fpl-service/internal/models"
-
-	Producer "github.com/imadbelkat1/kafka"
 )
 
 type FixturesApiService struct {
@@ -18,58 +15,87 @@ type FixturesApiService struct {
 
 func (s *FixturesApiService) UpdateFixtures() error {
 	var fixtures models.Fixtures
-	fixtureProducer := Producer.NewProducer()
-	statsProducer := Producer.NewProducer()
 
 	ctx := context.Background()
 
-	cfg := config.LoadConfig()
-	endpoint := cfg.FplApiFixtures
-
-	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &fixtures); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, fixturesEndpoint, &fixtures); err != nil {
 		return err
 	}
 
-	for _, f := range fixtures {
-		// Separate stats from fixture before marshaling
-		fixtureStatsJSON, err := json.Marshal(f.Stats)
-
-		newFixture, err := deleteKey(f, "stats")
-		if err != nil {
-			return fmt.Errorf("failed to delete stats key from fixture with ID: %d: %v", f.ID, err)
-		}
-
-		// Marshal the modified fixture without stats
-		fixtureJSON, err := json.Marshal(newFixture)
-
-		err = fixtureProducer.Publish(ctx, cfg.FplFixturesTopic, []byte(fmt.Sprintf("%d", f.ID)), fixtureJSON)
-		if err != nil {
-			return fmt.Errorf("failed to publish fixture with ID: %d to Kafka: %v", f.ID, err)
-		}
-
-		err = statsProducer.Publish(ctx, cfg.FplPlayerMatchStatsTopic, []byte(fmt.Sprintf("%d", f.ID)), fixtureStatsJSON)
-		if err != nil {
-			return fmt.Errorf("failed to publish fixture stats for fixture with ID: %d to Kafka: %v", f.ID, err)
-		}
+	if err := publishFixtures(ctx, fixtures); err != nil {
+		return fmt.Errorf("update fixtures: %w", err)
 	}
+
 	return nil
 }
 
-func deleteKey(T any, key string) (map[string]interface{}, error) {
-	Bytes, err := json.Marshal(T)
-	if err != nil {
-		fmt.Println("Error marshaling struct:", err)
-		return nil, err
+func publishFixtures(ctx context.Context, Fixtures models.Fixtures) error {
+
+	toDelete := []string{"stats"}
+
+	const deleteWorkers = 10
+	const publishWorkers = 10
+
+	jobs := make(chan models.Fixture, len(Fixtures))
+	fixturesChan := make(chan ProcessedModel, len(Fixtures))
+	results := make(chan error, len(Fixtures)*2) // delete + publish
+
+	// delete stage
+	var deleteWg sync.WaitGroup
+	for i := 0; i < deleteWorkers; i++ {
+		deleteWg.Add(1)
+		go func() {
+			defer deleteWg.Done()
+			for element := range jobs {
+				processed, err := processDelete(element, toDelete)
+				if err != nil {
+					results <- err
+					continue
+				}
+				fixturesChan <- ProcessedModel{ID: element.ID, Data: processed}
+			}
+		}()
 	}
 
-	var data map[string]interface{}
-	err = json.Unmarshal(Bytes, &data)
-	if err != nil {
-		fmt.Println("Error unmarshaling to map:", err)
-		return nil, err
+	// close fixturesChan after delete stage finishes
+	go func() {
+		deleteWg.Wait()
+		close(fixturesChan)
+	}()
+
+	// publish stage
+	var publishWg sync.WaitGroup
+	for i := 0; i < publishWorkers; i++ {
+		publishWg.Add(1)
+		go func() {
+			defer publishWg.Done()
+			for element := range fixturesChan {
+				key := []byte(fmt.Sprintf("%d", element.ID))
+				err := Publish(ctx, liveEventProducer, liveEventTopic, key, element.Data)
+				results <- err
+			}
+		}()
 	}
 
-	delete(data, key)
+	// close results after publish stage finishes
+	go func() {
+		publishWg.Wait()
+		close(results)
+	}()
 
-	return data, nil
+	// feed jobs
+	for _, element := range Fixtures {
+		jobs <- element
+	}
+
+	close(jobs)
+
+	// check results
+	for err := range results {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

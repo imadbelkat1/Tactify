@@ -5,6 +5,7 @@ type LiveEvent struct {
 }
 
 type LiveElement struct {
+	Gameweek int           `json:"gameweek"`
 	ID       int           `json:"id" db:"player_id"`
 	Stats    LiveStats     `json:"stats"`
 	Explain  []ExplainItem `json:"explain"`

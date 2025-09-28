@@ -25,7 +25,7 @@ func NewFplApiClient() *FplApiClient {
 func (c *FplApiClient) Get(ctx context.Context, endpoint string) ([]byte, error) {
 	// Load base URL from config
 	cfg := config.LoadConfig()
-	baseURL := cfg.FplApiBaseUrl
+	baseURL := cfg.FplApi.BaseUrl
 
 	url := fmt.Sprintf("%s%s", baseURL, endpoint)
 

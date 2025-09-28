@@ -5,26 +5,27 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/imadbelkat1/fpl-service/config"
 	"github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/fpl-service/internal/models"
-
-	teamProducer "github.com/imadbelkat1/kafka"
 )
 
 type TeamApiService struct {
 	Client *fpl_api.FplApiClient
 }
 
-func (s *TeamApiService) UpdateTeams() error {
+func (s *TeamApiService) getBootstrapData(ctx context.Context) (*models.BootstrapResponse, error) {
 	var bootstrap models.BootstrapResponse
-	producer := teamProducer.NewProducer()
+	if err := s.Client.GetAndUnmarshal(ctx, bootstrapEndpoint, &bootstrap); err != nil {
+		return nil, err
+	}
+	return &bootstrap, nil
+}
+
+func (s *TeamApiService) UpdateTeams() error {
 	ctx := context.Background()
+	bootstrap, err := s.getBootstrapData(ctx)
 
-	cfg := config.LoadConfig()
-	endpoint := cfg.FplApiBootstrap
-
-	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
+	if err = s.Client.GetAndUnmarshal(ctx, bootstrapEndpoint, &bootstrap); err != nil {
 		return err
 	}
 
@@ -33,7 +34,7 @@ func (s *TeamApiService) UpdateTeams() error {
 		if err != nil {
 			return fmt.Errorf("marshaling team: %w", err)
 		}
-		err = producer.Publish(ctx, cfg.FplTeamsTopic, []byte(fmt.Sprintf("%d", t.ID)), teamJSON)
+		err = Publish(ctx, teamProducer, teamsTopic, []byte(fmt.Sprintf("%d", t.ID)), teamJSON)
 		if err != nil {
 			return fmt.Errorf("publishing team to Kafka error: %w", err)
 		}
@@ -46,10 +47,7 @@ func (s *TeamApiService) GetTeam(id int) (*models.Team, error) {
 	var bootstrap models.BootstrapResponse
 	ctx := context.Background()
 
-	cfg := config.LoadConfig()
-	endpoint := cfg.FplApiBootstrap
-
-	if err := s.Client.GetAndUnmarshal(ctx, endpoint, bootstrap); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, bootstrapEndpoint, bootstrap); err != nil {
 		return nil, err
 	}
 
@@ -65,10 +63,7 @@ func (s *TeamApiService) GetTeam(id int) (*models.Team, error) {
 func (s *TeamApiService) GetAllTeams(ctx context.Context) ([]models.Team, error) {
 	var bootstrap models.BootstrapResponse
 
-	cfg := config.LoadConfig()
-	endpoint := cfg.FplApiBootstrap
-
-	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, bootstrapEndpoint, &bootstrap); err != nil {
 		return nil, err
 	}
 
@@ -79,10 +74,7 @@ func (s *TeamApiService) GetTeamsByStrength(minStrength int) ([]models.Team, err
 	var bootstrap models.BootstrapResponse
 	ctx := context.Background()
 
-	cfg := config.LoadConfig()
-	endpoint := cfg.FplApiBootstrap
-
-	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, bootstrapEndpoint, &bootstrap); err != nil {
 		return nil, err
 	}
 

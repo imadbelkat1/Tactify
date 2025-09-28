@@ -15,27 +15,18 @@ func main() {
 
 	// Get all available topics
 	topics := []string{
-		cfg.FplTeamsTopic,
-		cfg.FplFixturesTopic,
-		cfg.FplPlayerMatchStatsTopic,
+		cfg.TopicsName.FplTeams,
+		cfg.TopicsName.FplFixtures,
+		cfg.TopicsName.FplPlayerMatchStats,
+		cfg.TopicsName.FplLiveEvent,
 		// Add other topics here as needed
 	}
 
-	// Group ID for the consumer
-	consumerGroupID := []string{
-		cfg.FplTeamsConsumerGroupID,
-		cfg.FplFixturesConsumerGroupID,
-		cfg.FplStatsConsumerGroupID,
-		// Add other consumer group IDs here as needed
-	}
-
-	for i, topic := range topics {
-		groupID := consumerGroupID[i]
+	for _, topic := range topics {
 		go func(topicName string) {
 			consumer := kafka.NewConsumer(
 				kafkaCfg,
 				topicName,
-				groupID,
 			)
 			defer func(consumer *kafka.Consumer) {
 				err := consumer.Close()

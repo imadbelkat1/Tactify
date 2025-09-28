@@ -47,6 +47,7 @@ type PlayerService interface {
 
 // FixtureService handles match fixtures and results
 type FixtureService interface {
+	UpdateFixtures(fixtures []model.Fixture) error
 	GetFixture(id int) (*model.Fixture, error)
 	GetFixturesByGameweek(gameweek int) ([]model.Fixture, error)
 	GetFixturesByTeam(teamID int) ([]model.Fixture, error)
@@ -59,7 +60,6 @@ type FixtureService interface {
 type LiveEventService interface {
 	GetLiveEvent(gameweek int) (*model.LiveEvent, error)
 	GetLivePlayerStats(playerID, gameweek int) (*model.LiveElement, error)
-	GetBonusPoints(gameweek int) (map[int]*model.LiveElement, error)
 }
 
 // PlayerHistoryService handles player gameweek performance
