@@ -107,7 +107,7 @@ func (s *PlayerApiService) publishPlayersHistory(ctx context.Context, bootstrap 
 				if len(playerSummary.PlayerPast) > 0 {
 					// Map season names to IDs
 					for i := range playerSummary.PlayerPast {
-						seasonID := s.mapSeasonNameToID(playerSummary.PlayerPast[i].SeasonName)
+						seasonID := s.Config.MapSeasonNameToID(playerSummary.PlayerPast[i].SeasonName)
 						playerSummary.PlayerPast[i].SeasonId = seasonID
 					}
 
@@ -170,43 +170,4 @@ func (s *PlayerApiService) getBootstrapData(ctx context.Context) (*models.Bootst
 		return nil, err
 	}
 	return &bootstrap, nil
-}
-
-func (s *PlayerApiService) mapSeasonNameToID(seasons string) int {
-	switch seasons {
-	case "2025/26":
-		return s.Config.FplApi.Season2526
-	case "2024/25":
-		return s.Config.FplApi.Season2425
-	case "2023/24":
-		return s.Config.FplApi.Season2324
-	case "2022/23":
-		return s.Config.FplApi.Season2223
-	case "2021/22":
-		return s.Config.FplApi.Season2122
-	case "2020/21":
-		return s.Config.FplApi.Season2021
-	case "2019/20":
-		return s.Config.FplApi.Season1920
-	case "2018/19":
-		return s.Config.FplApi.Season1819
-	case "2017/18":
-		return s.Config.FplApi.Season1718
-	case "2016/17":
-		return s.Config.FplApi.Season1617
-	case "2015/16":
-		return s.Config.FplApi.Season1516
-	case "2014/15":
-		return s.Config.FplApi.Season1415
-	case "2013/14":
-		return s.Config.FplApi.Season1314
-	case "2012/13":
-		return s.Config.FplApi.Season1213
-	case "2011/12":
-		return s.Config.FplApi.Season1112
-	case "2010/11":
-		return s.Config.FplApi.Season1011
-	default:
-		return 0 // Unknown season
-	}
 }

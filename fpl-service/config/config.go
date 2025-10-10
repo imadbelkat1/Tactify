@@ -1,8 +1,6 @@
 package config
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 
 	kafkaConfig "github.com/imadbelkat1/kafka/config"
@@ -74,39 +72,41 @@ func LoadConfig() *FplConfig {
 	return config
 }
 
-func (c *FplConfig) DeleteKey(T any, key []string) (map[string]interface{}, error) {
-	Bytes, err := json.Marshal(T)
-	if err != nil {
-		fmt.Println("Error marshaling struct:", err)
-		return nil, err
+func (c *FplConfig) MapSeasonNameToID(seasons string) int {
+	switch seasons {
+	case "2025/26":
+		return c.FplApi.Season2526
+	case "2024/25":
+		return c.FplApi.Season2425
+	case "2023/24":
+		return c.FplApi.Season2324
+	case "2022/23":
+		return c.FplApi.Season2223
+	case "2021/22":
+		return c.FplApi.Season2122
+	case "2020/21":
+		return c.FplApi.Season2021
+	case "2019/20":
+		return c.FplApi.Season1920
+	case "2018/19":
+		return c.FplApi.Season1819
+	case "2017/18":
+		return c.FplApi.Season1718
+	case "2016/17":
+		return c.FplApi.Season1617
+	case "2015/16":
+		return c.FplApi.Season1516
+	case "2014/15":
+		return c.FplApi.Season1415
+	case "2013/14":
+		return c.FplApi.Season1314
+	case "2012/13":
+		return c.FplApi.Season1213
+	case "2011/12":
+		return c.FplApi.Season1112
+	case "2010/11":
+		return c.FplApi.Season1011
+	default:
+		return 0 // Unknown season
 	}
-
-	var data map[string]interface{}
-	err = json.Unmarshal(Bytes, &data)
-	if err != nil {
-		fmt.Println("Error unmarshaling to map:", err)
-		return nil, err
-	}
-
-	for _, k := range key {
-		delete(data, k)
-	}
-
-	return data, nil
-}
-
-func (c *FplConfig) ProcessDelete(model interface{}, toBeDeleted []string) ([]byte, error) {
-	newElement, err := c.DeleteKey(model, toBeDeleted)
-	if err != nil {
-		fmt.Errorf("failed to delete keys from newElement: %v", err)
-		return nil, err
-	}
-
-	elementJSON, err := json.Marshal(newElement)
-	if err != nil {
-		fmt.Errorf("failed to marshal elementJSON: %v", err)
-		return nil, err
-	}
-
-	return elementJSON, nil
 }

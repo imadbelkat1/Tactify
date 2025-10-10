@@ -28,6 +28,7 @@ type EntryHistoryCurrent struct {
 
 type EntryHistoryPast struct {
 	SeasonName  string `json:"season_name" db:"season_name"`
+	SeasonId    int    `json:"season_id" db:"season_id"`
 	TotalPoints int    `json:"total_points" db:"total_points"`
 	Rank        int    `json:"rank" db:"rank"`
 }

@@ -74,7 +74,6 @@ type ConsumersGroupID struct {
 	FplPlayersStats           string `envconfig:"CONSUMERSGROUPID_FPL_PLAYERS_STATS"`
 	FplLive                   string `envconfig:"CONSUMERSGROUPID_FPL_LIVE_EVENT"`
 	FplEntries                string `envconfig:"CONSUMERSGROUPID_FPL_ENTRY"`
-	FplEntriesEvent           string `envconfig:"CONSUMERSGROUPID_FPL_ENTRY_EVENT"`
 	FplEntriesHistory         string `envconfig:"CONSUMERSGROUPID_FPL_ENTRY_HISTORY"`
 	FplEntriesTransfers       string `envconfig:"CONSUMERSGROUPID_FPL_ENTRY_TRANSFERS"`
 	FplEntriesPicks           string `envconfig:"CONSUMERSGROUPID_FPL_ENTRY_PICKS"`

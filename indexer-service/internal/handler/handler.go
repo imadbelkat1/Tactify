@@ -51,6 +51,7 @@ func (h *Handler) Route(ctx context.Context, topic string) {
 		h.kafkaConfig.TopicsName.FplPlayersStats:       h.handlePlayerStats,
 		h.kafkaConfig.TopicsName.FplPlayerMatchStats:   h.handlePlayerMatchStats,
 		h.kafkaConfig.TopicsName.FplPlayerHistoryStats: h.handlePlayerPastHistory,
+		h.kafkaConfig.TopicsName.FplEntry:              h.handleManagers,
 	}
 
 	if fn, ok := handlers[topic]; ok {
@@ -451,6 +452,73 @@ func (h *Handler) handlePlayerPastHistory(ctx context.Context) {
 				for playerCode, pMsg := range batch {
 					if err := h.playerRepo.InsertPlayerPastSeasons(playerCode, pMsg.PastHistory); err != nil {
 						log.Printf("Error inserting player past history for player code %d on shutdown: %v\n", playerCode, err)
+					}
+				}
+			}
+			return
+		}
+	}
+}
+
+func (h *Handler) handleManagers(ctx context.Context) {
+	batch := make(map[int]models.EntryMessage)
+	consumer := kafka.NewConsumer(h.kafkaConfig, h.kafkaConfig.TopicsName.FplEntry, h.kafkaConfig.ConsumersGroupID.FplEntries)
+	messages, errors := consumer.Subscribe(ctx)
+
+	flushTicker := time.NewTicker(h.config.FlushInterval)
+	defer flushTicker.Stop()
+
+	for {
+		select {
+		case msg := <-messages:
+			var entry models.EntryMessage
+			err := json.Unmarshal(msg.Value, &entry)
+			if err != nil {
+				log.Printf("Error unmarshaling manager message: %v, raw: %s\n", err, string(msg.Value))
+				continue
+			}
+			batch[entry.Entry.ID] = entry
+			if len(batch) >= h.config.BatchSize {
+				entries := make([]models.EntryMessage, 0, len(batch))
+				for _, e := range batch {
+					entries = append(entries, e)
+				}
+				for _, e := range entries {
+					if err := h.managerRepo.InsertManagerInfo(&e); err != nil {
+						log.Printf("Error inserting manager info for manager %d: %v\n", e.Entry.ID, err)
+					}
+				}
+				batch = make(map[int]models.EntryMessage)
+			}
+
+		case <-flushTicker.C:
+			if len(batch) > 0 {
+				entries := make([]models.EntryMessage, 0, len(batch))
+				for _, e := range batch {
+					entries = append(entries, e)
+				}
+				for _, e := range entries {
+					if err := h.managerRepo.InsertManagerInfo(&e); err != nil {
+						log.Printf("Error flushing manager info for manager %d: %v\n", e.Entry.ID, err)
+					}
+				}
+				batch = make(map[int]models.EntryMessage)
+			}
+
+		case err := <-errors:
+			if err != nil {
+				log.Println("Error consuming manager message:", err)
+			}
+
+		case <-ctx.Done():
+			if len(batch) > 0 {
+				entries := make([]models.EntryMessage, 0, len(batch))
+				for _, e := range batch {
+					entries = append(entries, e)
+				}
+				for _, e := range entries {
+					if err := h.managerRepo.InsertManagerInfo(&e); err != nil {
+						log.Printf("Error inserting manager info for manager %d on shutdown: %v\n", e.Entry.ID, err)
 					}
 				}
 			}

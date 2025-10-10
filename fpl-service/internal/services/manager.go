@@ -152,6 +152,10 @@ func (s *ManagersApiService) GetManagerHistory(ctx context.Context, managerId in
 
 	entryHistory.EntryId = managerId
 	entryHistory.SeasonId = s.Config.FplApi.CurrentSeasonID
+	for i := range entryHistory.EntryHistory.Past {
+		seasonID := s.Config.MapSeasonNameToID(entryHistory.EntryHistory.Past[i].SeasonName)
+		entryHistory.EntryHistory.Past[i].SeasonId = seasonID
+	}
 
 	return &entryHistory, nil
 }
