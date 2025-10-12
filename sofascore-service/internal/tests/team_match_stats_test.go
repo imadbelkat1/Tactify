@@ -28,18 +28,15 @@ func TestTeamMatchStatsService(t *testing.T) {
 		Producer: kafka.NewProducer(),
 	}
 
-	time.Sleep(200 * time.Millisecond)
-
 	log.Println("Calling FPL API...")
 
-	seasonId := service.Config.SofascoreApi.SeasonsIDs.Laliga2425
-	leagueId := service.Config.SofascoreApi.LeaguesIDs.LaLiga
+	seasonId := service.Config.SofascoreApi.SeasonsIDs.PremierLeague2526
+	leagueId := service.Config.SofascoreApi.LeaguesIDs.PremierLeague
 	log.Println(seasonId)
 	log.Println(leagueId)
-	//log.Println(round)
 
 	start := time.Now()
-	for round := 1; round <= 38; round++ {
+	for round := 1; round <= 7; round++ {
 		log.Printf("Processing round %d", round)
 		err := service.UpdateLeagueMatchStats(ctx, seasonId, leagueId, round)
 		if err != nil {

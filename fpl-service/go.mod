@@ -1,6 +1,6 @@
 module github.com/imadbelkat1/fpl-service
 
-go 1.24
+go 1.25
 
 require (
 	github.com/imadbelkat1/kafka v0.0.0-00010101000000-000000000000

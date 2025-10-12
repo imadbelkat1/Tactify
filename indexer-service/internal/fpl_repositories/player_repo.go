@@ -6,17 +6,17 @@ import (
 	"log"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type PlayerRepo struct {
 	db                     *sql.DB
-	PlayerBootstrapModel   *models.PlayerBootstrap
-	PlayerHistoryModel     *models.PlayerHistory
-	PlayerPastHistoryModel *models.PlayerPastHistory
+	PlayerBootstrapModel   *fpl_models.PlayerBootstrap
+	PlayerHistoryModel     *fpl_models.PlayerHistory
+	PlayerPastHistoryModel *fpl_models.PlayerPastHistory
 }
 
-func NewPlayerRepo(db *sql.DB, playerBootstrapModel *models.PlayerBootstrap, PlayerHistoryModel *models.PlayerHistory, PlayerPastHistoryModel *models.PlayerPastHistory) *PlayerRepo {
+func NewPlayerRepo(db *sql.DB, playerBootstrapModel *fpl_models.PlayerBootstrap, PlayerHistoryModel *fpl_models.PlayerHistory, PlayerPastHistoryModel *fpl_models.PlayerPastHistory) *PlayerRepo {
 	return &PlayerRepo{
 		db:                     db,
 		PlayerBootstrapModel:   playerBootstrapModel,
@@ -43,7 +43,7 @@ func nullIfEmpty(s string) interface{} {
 }
 
 // InsertPlayerBootstrapComplete handles all player bootstrap data at once
-func (r *PlayerRepo) InsertPlayerBootstrapComplete(players []models.PlayerBootstrapMessage) error {
+func (r *PlayerRepo) InsertPlayerBootstrapComplete(players []fpl_models.PlayerBootstrapMessage) error {
 	log.Printf("Attempting to insert %d players...", len(players))
 
 	if err := r.InsertPlayers(players); err != nil {
@@ -86,7 +86,7 @@ func (r *PlayerRepo) InsertPlayerBootstrapComplete(players []models.PlayerBootst
 }
 
 // InsertPlayers inserts/updates main player information
-func (r *PlayerRepo) InsertPlayers(players []models.PlayerBootstrapMessage) error {
+func (r *PlayerRepo) InsertPlayers(players []fpl_models.PlayerBootstrapMessage) error {
 	if len(players) == 0 {
 		return nil
 	}
@@ -153,7 +153,7 @@ func (r *PlayerRepo) InsertPlayers(players []models.PlayerBootstrapMessage) erro
 }
 
 // InsertPlayerCosts inserts/updates player cost information
-func (r *PlayerRepo) InsertPlayerCosts(players []models.PlayerBootstrapMessage) error {
+func (r *PlayerRepo) InsertPlayerCosts(players []fpl_models.PlayerBootstrapMessage) error {
 	query := sq.Insert("player_costs").Columns(
 		"player_id", "now_cost", "cost_change_event", "cost_change_event_fall",
 		"cost_change_start", "cost_change_start_fall",
@@ -186,7 +186,7 @@ func (r *PlayerRepo) InsertPlayerCosts(players []models.PlayerBootstrapMessage) 
 }
 
 // InsertPlayerSeasonStats inserts/updates player season statistics
-func (r *PlayerRepo) InsertPlayerSeasonStats(players []models.PlayerBootstrapMessage) error {
+func (r *PlayerRepo) InsertPlayerSeasonStats(players []fpl_models.PlayerBootstrapMessage) error {
 	query := sq.Insert("player_season_stats").Columns(
 		"player_id", "dreamteam_count", "total_points", "event_points", "points_per_game",
 		"form", "selected_by_percent", "value_form", "value_season",
@@ -248,7 +248,7 @@ func (r *PlayerRepo) InsertPlayerSeasonStats(players []models.PlayerBootstrapMes
 }
 
 // InsertPlayerICTStats inserts/updates player ICT statistics
-func (r *PlayerRepo) InsertPlayerICTStats(players []models.PlayerBootstrapMessage) error {
+func (r *PlayerRepo) InsertPlayerICTStats(players []fpl_models.PlayerBootstrapMessage) error {
 	query := sq.Insert("player_ict_stats").Columns(
 		"player_id", "influence", "creativity", "threat", "ict_index",
 		"influence_rank", "influence_rank_type", "creativity_rank", "creativity_rank_type",
@@ -290,7 +290,7 @@ func (r *PlayerRepo) InsertPlayerICTStats(players []models.PlayerBootstrapMessag
 }
 
 // InsertPlayerExpectedStats inserts/updates player expected statistics
-func (r *PlayerRepo) InsertPlayerExpectedStats(players []models.PlayerBootstrapMessage) error {
+func (r *PlayerRepo) InsertPlayerExpectedStats(players []fpl_models.PlayerBootstrapMessage) error {
 	query := sq.Insert("player_expected_stats").Columns(
 		"player_id", "expected_goals", "expected_assists", "expected_goal_involvements", "expected_goals_conceded",
 		"expected_goals_per_90", "expected_assists_per_90", "expected_goal_involvements_per_90",
@@ -335,7 +335,7 @@ func (r *PlayerRepo) InsertPlayerExpectedStats(players []models.PlayerBootstrapM
 }
 
 // InsertPlayerRankings inserts/updates player rankings
-func (r *PlayerRepo) InsertPlayerRankings(players []models.PlayerBootstrapMessage) error {
+func (r *PlayerRepo) InsertPlayerRankings(players []fpl_models.PlayerBootstrapMessage) error {
 	query := sq.Insert("player_rankings").Columns(
 		"player_id", "now_cost_rank", "now_cost_rank_type",
 		"form_rank", "form_rank_type", "points_per_game_rank", "points_per_game_rank_type",
@@ -373,7 +373,7 @@ func (r *PlayerRepo) InsertPlayerRankings(players []models.PlayerBootstrapMessag
 }
 
 // InsertPlayerGameweekStats inserts/updates player gameweek performance stats
-func (r *PlayerRepo) InsertPlayerGameweekStats(history models.PlayerHistoryMessage) error {
+func (r *PlayerRepo) InsertPlayerGameweekStats(history fpl_models.PlayerHistoryMessage) error {
 	playerHistory := history.History
 
 	if len(playerHistory) == 0 {
@@ -461,7 +461,7 @@ func (r *PlayerRepo) InsertPlayerGameweekStats(history models.PlayerHistoryMessa
 }
 
 // InsertPlayerPastSeasons inserts/updates player past season history
-func (r *PlayerRepo) InsertPlayerPastSeasons(pastHistory []models.PlayerPastHistoryMessage) error {
+func (r *PlayerRepo) InsertPlayerPastSeasons(pastHistory []fpl_models.PlayerPastHistoryMessage) error {
 	if len(pastHistory) == 0 {
 		return nil
 	}
@@ -533,7 +533,7 @@ func (r *PlayerRepo) InsertPlayerPastSeasons(pastHistory []models.PlayerPastHist
 	return nil
 }
 
-func (r *PlayerRepo) InsertPlayerGameweekExplain(explain []models.LiveEventMessage) error {
+func (r *PlayerRepo) InsertPlayerGameweekExplain(explain []fpl_models.LiveEventMessage) error {
 	if len(explain) == 0 {
 		return nil
 	}

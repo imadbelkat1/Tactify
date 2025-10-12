@@ -10,7 +10,7 @@ import (
 	"github.com/imadbelkat1/fpl-service/config"
 	fpl_api "github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/kafka"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type ManagersApiService struct {
@@ -47,7 +47,7 @@ func (s *ManagersApiService) UpdateManager(ctx context.Context, managerId int, e
 	return nil
 }
 
-func (s *ManagersApiService) publishManager(ctx context.Context, info *models.EntryMessage, picks *models.EntryEventPicksMessage, history *models.EntryHistoryMessage, transfers *models.EntryTransfersMessage) error {
+func (s *ManagersApiService) publishManager(ctx context.Context, info *fpl_models.EntryMessage, picks *fpl_models.EntryEventPicksMessage, history *fpl_models.EntryHistoryMessage, transfers *fpl_models.EntryTransfersMessage) error {
 	entryTopic := s.Config.KafkaConfig.TopicsName.FplEntry
 	entryEventTopic := s.Config.KafkaConfig.TopicsName.FplEntryPicks
 	entryHistoryTopic := s.Config.KafkaConfig.TopicsName.FplEntryHistory
@@ -106,8 +106,8 @@ func (s *ManagersApiService) publishManager(ctx context.Context, info *models.En
 	return nil
 }
 
-func (s *ManagersApiService) GetManagerInfo(ctx context.Context, managerId int) (*models.EntryMessage, error) {
-	var entry models.EntryMessage
+func (s *ManagersApiService) GetManagerInfo(ctx context.Context, managerId int) (*fpl_models.EntryMessage, error) {
+	var entry fpl_models.EntryMessage
 
 	entryEndpoint := s.Config.FplApi.Entry
 	endpoint := fmt.Sprintf(entryEndpoint, managerId)
@@ -122,8 +122,8 @@ func (s *ManagersApiService) GetManagerInfo(ctx context.Context, managerId int) 
 	return &entry, nil
 }
 
-func (s *ManagersApiService) GetManagerPicks(ctx context.Context, managerId int, eventId int) (*models.EntryEventPicksMessage, error) {
-	var entryEvent models.EntryEventPicksMessage
+func (s *ManagersApiService) GetManagerPicks(ctx context.Context, managerId int, eventId int) (*fpl_models.EntryEventPicksMessage, error) {
+	var entryEvent fpl_models.EntryEventPicksMessage
 
 	entryEventEndpoint := s.Config.FplApi.EntryPicks
 	endpoint := fmt.Sprintf(entryEventEndpoint, managerId, eventId)
@@ -140,8 +140,8 @@ func (s *ManagersApiService) GetManagerPicks(ctx context.Context, managerId int,
 	return &entryEvent, nil
 }
 
-func (s *ManagersApiService) GetManagerHistory(ctx context.Context, managerId int) (*models.EntryHistoryMessage, error) {
-	var entryHistory models.EntryHistoryMessage
+func (s *ManagersApiService) GetManagerHistory(ctx context.Context, managerId int) (*fpl_models.EntryHistoryMessage, error) {
+	var entryHistory fpl_models.EntryHistoryMessage
 
 	entryHistoryEndpoint := s.Config.FplApi.EntryHistory
 	endpoint := fmt.Sprintf(entryHistoryEndpoint, managerId)
@@ -161,8 +161,8 @@ func (s *ManagersApiService) GetManagerHistory(ctx context.Context, managerId in
 	return &entryHistory, nil
 }
 
-func (s *ManagersApiService) GetManagerTransfers(ctx context.Context, managerId int) (*models.EntryTransfersMessage, error) {
-	var entryTransfers models.EntryTransfersMessage
+func (s *ManagersApiService) GetManagerTransfers(ctx context.Context, managerId int) (*fpl_models.EntryTransfersMessage, error) {
+	var entryTransfers fpl_models.EntryTransfersMessage
 
 	entryTransfersEndpoint := s.Config.FplApi.EntryTransfers
 	endpoint := fmt.Sprintf(entryTransfersEndpoint, managerId)

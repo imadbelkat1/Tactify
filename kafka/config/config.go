@@ -47,6 +47,7 @@ type TopicsName struct {
 	SofascoreLeagueRoundMatches string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_ROUND_MATCHES"`
 	SofascoreMatchLineups       string `envconfig:"TOPICSNAME_SOFASCORE_MATCH_LINEUPS"`
 	SofascoreMatchH2hHistory    string `envconfig:"TOPICSNAME_SOFASCORE_MATCH_H2H_HISTORY"`
+	SofascoreTopTeamsStats      string `envconfig:"TOPICSNAME_SOFASCORE_TOP_TEAMS_STATS"`
 	SofascoreTeamOverallStats   string `envconfig:"TOPICSNAME_SOFASCORE_TEAM_OVERALL_STATS"`
 	SofascoreTeamMatchStats     string `envconfig:"TOPICSNAME_SOFASCORE_TEAM_MATCH_STATS"`
 	SofascorePlayerTeamStats    string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_TEAM_STATS"`

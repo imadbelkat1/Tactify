@@ -83,6 +83,7 @@ type MatchEndpoints struct {
 }
 
 type TeamEndpoints struct {
+	TopTeamsStats    string `envconfig:"SOFASCOREAPI_TOP_TEAMS_OVERALL_STATS_ENDPOINT"`
 	TeamOverallStats string `envconfig:"SOFASCOREAPI_TEAM_OVERALL_STATS_ENDPOINT"`
 	TeamMatchStats   string `envconfig:"SOFASCOREAPI_TEAM_MATCH_STATS_ENDPOINT"`
 }

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/imadbelkat1/shared/sofascore_models"
 	"github.com/imadbelkat1/sofascore-service/config"
 	sofascore_api "github.com/imadbelkat1/sofascore-service/internal/api"
-	"github.com/imadbelkat1/sofascore-service/internal/models"
 )
 
 type EventsService struct {
@@ -15,8 +15,8 @@ type EventsService struct {
 	Client *sofascore_api.SofascoreApiClient
 }
 
-func (e *EventsService) GetRoundMatches(ctx context.Context, leagueId int, season int, round int) (*models.Events, error) {
-	var Event models.Events
+func (e *EventsService) GetRoundMatches(ctx context.Context, leagueId int, season int, round int) (*sofascore_models.Events, error) {
+	var Event sofascore_models.Events
 	leagueRoundMatches := e.Config.SofascoreApi.LeagueEndpoints.LeagueRoundMatches //unique-tournament/%d/season/%d/events/round/%d
 	log.Printf("leagueRoundMatches raw: %q", leagueRoundMatches)
 

@@ -9,7 +9,7 @@ import (
 	"github.com/imadbelkat1/fpl-service/config"
 	fpl_api "github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/kafka"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type TeamApiService struct {
@@ -18,8 +18,8 @@ type TeamApiService struct {
 	Producer *kafka.Producer
 }
 
-func (s *TeamApiService) getBootstrapData(ctx context.Context) (*models.BootstrapResponse, error) {
-	var bootstrap models.BootstrapResponse
+func (s *TeamApiService) getBootstrapData(ctx context.Context) (*fpl_models.BootstrapResponse, error) {
+	var bootstrap fpl_models.BootstrapResponse
 	endpoint := s.Config.FplApi.Bootstrap
 
 	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {
@@ -41,10 +41,10 @@ func (s *TeamApiService) UpdateTeams(ctx context.Context) error {
 	return nil
 }
 
-func (s *TeamApiService) publishTeams(ctx context.Context, teams []models.Team) error {
+func (s *TeamApiService) publishTeams(ctx context.Context, teams []fpl_models.Team) error {
 	teamsTopic := s.Config.KafkaConfig.TopicsName.FplTeams
 
-	jobs := make(chan models.Team, len(teams))
+	jobs := make(chan fpl_models.Team, len(teams))
 
 	var publishWg sync.WaitGroup
 	for i := 0; i < s.Config.PublishWorkerCount; i++ {
@@ -52,7 +52,7 @@ func (s *TeamApiService) publishTeams(ctx context.Context, teams []models.Team) 
 		go func() {
 			defer publishWg.Done()
 			for team := range jobs {
-				message := models.TeamMessage{
+				message := fpl_models.TeamMessage{
 					Team:     team,
 					SeasonID: s.Config.FplApi.Season2526,
 				}

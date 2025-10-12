@@ -11,7 +11,7 @@ import (
 	"github.com/imadbelkat1/fpl-service/config"
 	fpl_api "github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/kafka"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type FixturesApiService struct {
@@ -20,8 +20,8 @@ type FixturesApiService struct {
 	Producer *kafka.Producer
 }
 
-func (s *FixturesApiService) GetFixtures(ctx context.Context) (*models.Fixtures, error) {
-	var fixtures models.Fixtures
+func (s *FixturesApiService) GetFixtures(ctx context.Context) (*fpl_models.Fixtures, error) {
+	var fixtures fpl_models.Fixtures
 
 	fixturesEndpoint := s.Config.FplApi.Fixtures
 
@@ -51,11 +51,11 @@ func (s *FixturesApiService) UpdateFixtures(ctx context.Context) error {
 	return nil
 }
 
-func (s *FixturesApiService) publishFixtures(ctx context.Context, fixtures *models.Fixtures) error {
+func (s *FixturesApiService) publishFixtures(ctx context.Context, fixtures *fpl_models.Fixtures) error {
 	fixturesTopic := s.Config.KafkaConfig.TopicsName.FplFixtures
 	//fixtureDetailsTopic := s.Config.KafkaConfig.TopicsName.FplFixtureDetails
 
-	jobs := make(chan models.Fixture, len(*fixtures))
+	jobs := make(chan fpl_models.Fixture, len(*fixtures))
 
 	var publishWg sync.WaitGroup
 	for i := 0; i < s.Config.PublishWorkerCount; i++ {
@@ -63,7 +63,7 @@ func (s *FixturesApiService) publishFixtures(ctx context.Context, fixtures *mode
 		go func() {
 			defer publishWg.Done()
 			for fixture := range jobs {
-				fixtureMessage := models.FixtureMessage{
+				fixtureMessage := fpl_models.FixtureMessage{
 					Fixture:  fixture,
 					SeasonID: s.Config.FplApi.CurrentSeasonID,
 				}
@@ -72,7 +72,7 @@ func (s *FixturesApiService) publishFixtures(ctx context.Context, fixtures *mode
 					continue
 				}
 
-				/*dtoStats := models.FixtureStatDTO{
+				/*dtoStats := fpl_models.FixtureStatDTO{
 					ID:          fixture.ID,
 					FixtureStat: fixture.Stats,
 				}

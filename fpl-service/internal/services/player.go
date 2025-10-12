@@ -10,7 +10,7 @@ import (
 	"github.com/imadbelkat1/fpl-service/config"
 	fpl_api "github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/kafka"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type PlayerApiService struct {
@@ -39,13 +39,13 @@ func (s *PlayerApiService) UpdatePlayers(ctx context.Context) error {
 }
 
 // publishPlayersBootstrap publishes only the bootstrap/stats data
-func (s *PlayerApiService) publishPlayersBootstrap(ctx context.Context, bootstrap *models.PlayersBootstrap) error {
+func (s *PlayerApiService) publishPlayersBootstrap(ctx context.Context, bootstrap *fpl_models.PlayersBootstrap) error {
 	playersBootstrapTopic := s.Config.KafkaConfig.TopicsName.FplPlayersBootstrap
 
 	log.Printf("Publishing %d player bootstrap records...", len(bootstrap.PlayerBootstrap))
 
 	for _, player := range bootstrap.PlayerBootstrap {
-		playerBootstrap := models.PlayerBootstrapMessage{
+		playerBootstrap := fpl_models.PlayerBootstrapMessage{
 			Player:   player,
 			SeasonID: s.Config.FplApi.CurrentSeasonID,
 		}
@@ -65,13 +65,13 @@ func (s *PlayerApiService) publishPlayersBootstrap(ctx context.Context, bootstra
 }
 
 // publishPlayersHistory fetches and publishes match history and past seasons
-func (s *PlayerApiService) publishPlayersHistory(ctx context.Context, bootstrap *models.PlayersBootstrap) error {
+func (s *PlayerApiService) publishPlayersHistory(ctx context.Context, bootstrap *fpl_models.PlayersBootstrap) error {
 	playersMatchStatsTopic := s.Config.KafkaConfig.TopicsName.FplPlayerMatchStats
 	playersPastHistoryTopic := s.Config.KafkaConfig.TopicsName.FplPlayerHistoryStats
 
 	log.Printf("Fetching and publishing history for %d players...", len(bootstrap.PlayerBootstrap))
 
-	jobHistory := make(chan models.PlayerBootstrap, len(bootstrap.PlayerBootstrap))
+	jobHistory := make(chan fpl_models.PlayerBootstrap, len(bootstrap.PlayerBootstrap))
 
 	var wg sync.WaitGroup
 	for i := 0; i < s.Config.PublishWorkerCount; i++ {
@@ -87,7 +87,7 @@ func (s *PlayerApiService) publishPlayersHistory(ctx context.Context, bootstrap 
 
 				// Publish player match history (gameweek stats)
 				if len(playerSummary.PlayerHistory) > 0 {
-					matchStatsPayload := models.PlayerHistoryMessage{
+					matchStatsPayload := fpl_models.PlayerHistoryMessage{
 						PlayerID: player.ID,
 						SeasonID: s.Config.FplApi.CurrentSeasonID,
 						History:  playerSummary.PlayerHistory,
@@ -111,7 +111,7 @@ func (s *PlayerApiService) publishPlayersHistory(ctx context.Context, bootstrap 
 						playerSummary.PlayerPast[i].SeasonId = seasonID
 					}
 
-					pastHistoryPayload := models.PlayerPastHistoryMessage{
+					pastHistoryPayload := fpl_models.PlayerPastHistoryMessage{
 						PlayerCode:        player.Code,
 						PlayerPastHistory: playerSummary.PlayerPast,
 					}
@@ -140,8 +140,8 @@ func (s *PlayerApiService) publishPlayersHistory(ctx context.Context, bootstrap 
 	return nil
 }
 
-func (s *PlayerApiService) getPlayerSummary(ctx context.Context, playerId int) (*models.Player, error) {
-	var player models.Player
+func (s *PlayerApiService) getPlayerSummary(ctx context.Context, playerId int) (*fpl_models.Player, error) {
+	var player fpl_models.Player
 	playerSummary := s.Config.FplApi.PlayerSummary // /element-summary/%d/
 
 	endpoint := fmt.Sprintf(playerSummary, playerId)
@@ -153,17 +153,17 @@ func (s *PlayerApiService) getPlayerSummary(ctx context.Context, playerId int) (
 	return &player, nil
 }
 
-func (s *PlayerApiService) getPlayersBootstrap(ctx context.Context) (*models.PlayersBootstrap, error) {
+func (s *PlayerApiService) getPlayersBootstrap(ctx context.Context) (*fpl_models.PlayersBootstrap, error) {
 	bootstrap, err := s.getBootstrapData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.PlayersBootstrap{PlayerBootstrap: bootstrap.Elements}, nil
+	return &fpl_models.PlayersBootstrap{PlayerBootstrap: bootstrap.Elements}, nil
 }
 
-func (s *PlayerApiService) getBootstrapData(ctx context.Context) (*models.BootstrapResponse, error) {
-	var bootstrap models.BootstrapResponse
+func (s *PlayerApiService) getBootstrapData(ctx context.Context) (*fpl_models.BootstrapResponse, error) {
+	var bootstrap fpl_models.BootstrapResponse
 	endpoint := s.Config.FplApi.Bootstrap
 
 	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &bootstrap); err != nil {

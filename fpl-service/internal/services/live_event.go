@@ -9,7 +9,7 @@ import (
 	"github.com/imadbelkat1/fpl-service/config"
 	fpl_api "github.com/imadbelkat1/fpl-service/internal/api"
 	"github.com/imadbelkat1/kafka"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type LiveEventApiService struct {
@@ -31,8 +31,8 @@ func (s *LiveEventApiService) UpdateLiveEvent(ctx context.Context, eventID int) 
 	return nil
 }
 
-func (s *LiveEventApiService) GetLiveEvent(ctx context.Context, eventID int) (*models.LiveEvent, error) {
-	var liveEvent models.LiveEvent
+func (s *LiveEventApiService) GetLiveEvent(ctx context.Context, eventID int) (*fpl_models.LiveEvent, error) {
+	var liveEvent fpl_models.LiveEvent
 
 	endpoint := fmt.Sprintf(s.Config.FplApi.LiveEvent, eventID)
 
@@ -43,10 +43,10 @@ func (s *LiveEventApiService) GetLiveEvent(ctx context.Context, eventID int) (*m
 	return &liveEvent, nil
 }
 
-func (s *LiveEventApiService) publishLiveEvent(ctx context.Context, liveEvent *models.LiveEvent, eventID int) error {
+func (s *LiveEventApiService) publishLiveEvent(ctx context.Context, liveEvent *fpl_models.LiveEvent, eventID int) error {
 	liveEventTopic := s.Config.KafkaConfig.TopicsName.FplLiveEvent
 
-	jobs := make(chan models.LiveElement, len(liveEvent.Elements))
+	jobs := make(chan fpl_models.LiveElement, len(liveEvent.Elements))
 
 	var publishWg sync.WaitGroup
 	for i := 0; i < s.Config.PublishWorkerCount; i++ {
@@ -54,7 +54,7 @@ func (s *LiveEventApiService) publishLiveEvent(ctx context.Context, liveEvent *m
 		go func() {
 			defer publishWg.Done()
 			for element := range jobs {
-				dto := models.LiveEventMessage{
+				dto := fpl_models.LiveEventMessage{
 					PlayerID: element.ID,
 					Event:    eventID,
 					SeasonID: s.Config.FplApi.CurrentSeasonID,

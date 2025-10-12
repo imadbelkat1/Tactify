@@ -6,18 +6,18 @@ import (
 	"log"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type ManagerRepo struct {
 	db             *sql.DB
-	Entry          *models.EntryMessage
-	EntryPicks     *models.EntryEventPicksMessage
-	EntryTransfers *models.EntryTransfersMessage
-	EntryHistory   *models.EntryHistoryMessage
+	Entry          *fpl_models.EntryMessage
+	EntryPicks     *fpl_models.EntryEventPicksMessage
+	EntryTransfers *fpl_models.EntryTransfersMessage
+	EntryHistory   *fpl_models.EntryHistoryMessage
 }
 
-func NewManagerRepo(db *sql.DB, entry *models.EntryMessage, entryPicks *models.EntryEventPicksMessage, entryTransfers *models.EntryTransfersMessage, entryHistory *models.EntryHistoryMessage) *ManagerRepo {
+func NewManagerRepo(db *sql.DB, entry *fpl_models.EntryMessage, entryPicks *fpl_models.EntryEventPicksMessage, entryTransfers *fpl_models.EntryTransfersMessage, entryHistory *fpl_models.EntryHistoryMessage) *ManagerRepo {
 	return &ManagerRepo{
 		db:             db,
 		Entry:          entry,
@@ -27,7 +27,7 @@ func NewManagerRepo(db *sql.DB, entry *models.EntryMessage, entryPicks *models.E
 	}
 }
 
-func (r *ManagerRepo) InsertManagerInfo(entry *models.EntryMessage) error {
+func (r *ManagerRepo) InsertManagerInfo(entry *fpl_models.EntryMessage) error {
 	if entry == nil {
 		return nil
 	}
@@ -87,7 +87,7 @@ func (r *ManagerRepo) InsertManagerInfo(entry *models.EntryMessage) error {
 	return err
 }
 
-func (r *ManagerRepo) InsertManagerPicks(entryPicks *models.EntryEventPicksMessage) error {
+func (r *ManagerRepo) InsertManagerPicks(entryPicks *fpl_models.EntryEventPicksMessage) error {
 	if entryPicks == nil {
 		return nil
 	}
@@ -159,7 +159,7 @@ func (r *ManagerRepo) InsertManagerPicks(entryPicks *models.EntryEventPicksMessa
 	return err
 }
 
-func (r *ManagerRepo) InsertManagerTransfers(entryTransfers *models.EntryTransfersMessage) error {
+func (r *ManagerRepo) InsertManagerTransfers(entryTransfers *fpl_models.EntryTransfersMessage) error {
 	if entryTransfers == nil {
 		return nil
 	}
@@ -198,7 +198,7 @@ func (r *ManagerRepo) InsertManagerTransfers(entryTransfers *models.EntryTransfe
 	return err
 }
 
-func (r *ManagerRepo) InsertManagerFullHistory(entryHistory *models.EntryHistoryMessage) error {
+func (r *ManagerRepo) InsertManagerFullHistory(entryHistory *fpl_models.EntryHistoryMessage) error {
 	if entryHistory == nil {
 		return nil
 	}

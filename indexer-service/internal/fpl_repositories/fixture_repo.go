@@ -5,15 +5,15 @@ import (
 	"log"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type FixtureRepo struct {
 	db           *sql.DB
-	FixtureModel *models.Fixture
+	FixtureModel *fpl_models.Fixture
 }
 
-func NewFixtureRepo(db *sql.DB, fixtureModel *models.Fixture) *FixtureRepo {
+func NewFixtureRepo(db *sql.DB, fixtureModel *fpl_models.Fixture) *FixtureRepo {
 	return &FixtureRepo{
 		db:           db,
 		FixtureModel: fixtureModel,
@@ -21,7 +21,7 @@ func NewFixtureRepo(db *sql.DB, fixtureModel *models.Fixture) *FixtureRepo {
 }
 
 // In fixture_repo.go
-func (r *FixtureRepo) InsertFixtures(fixtures []models.FixtureMessage) error {
+func (r *FixtureRepo) InsertFixtures(fixtures []fpl_models.FixtureMessage) error {
 	if len(fixtures) == 0 {
 		return nil
 	}

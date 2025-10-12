@@ -1,4 +1,4 @@
 module github.com/imadbelkat1/shared
 
 
-go 1.24
+go 1.25

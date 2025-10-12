@@ -4,22 +4,22 @@ import (
 	"database/sql"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/imadbelkat1/shared/models"
+	"github.com/imadbelkat1/shared/fpl_models"
 )
 
 type TeamRepo struct {
 	db        *sql.DB
-	TeamModel *models.Team
+	TeamModel *fpl_models.Team
 }
 
-func NewTeamRepo(db *sql.DB, teamModel *models.Team) *TeamRepo {
+func NewTeamRepo(db *sql.DB, teamModel *fpl_models.Team) *TeamRepo {
 	return &TeamRepo{
 		db:        db,
 		TeamModel: teamModel,
 	}
 }
 
-func (r *TeamRepo) InsertTeams(teams []models.TeamMessage) error {
+func (r *TeamRepo) InsertTeams(teams []fpl_models.TeamMessage) error {
 	query := sq.Insert("teams").Columns("season_id", "team_id", "team_code", "name", "short_name", "strength",
 		"form", "position", "points", "played", "win", "draw", "loss", "team_division", "unavailable",
 		"pulse_id", "strength_overall_home", "strength_overall_away", "strength_attack_home", "strength_attack_away",

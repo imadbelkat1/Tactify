@@ -8,9 +8,9 @@ import (
 	"sync"
 
 	"github.com/imadbelkat1/kafka"
+	"github.com/imadbelkat1/shared/sofascore_models"
 	"github.com/imadbelkat1/sofascore-service/config"
 	sofascore_api "github.com/imadbelkat1/sofascore-service/internal/api"
-	"github.com/imadbelkat1/sofascore-service/internal/models"
 )
 
 type TeamMatchStatsService struct {
@@ -20,8 +20,8 @@ type TeamMatchStatsService struct {
 	Producer *kafka.Producer
 }
 
-func (s *TeamMatchStatsService) GetTeamMatchStats(ctx context.Context, matchId int) (*models.MatchStats, error) {
-	var teamMatchStats models.MatchStats
+func (s *TeamMatchStatsService) GetTeamMatchStats(ctx context.Context, matchId int) (*sofascore_models.MatchStatsMessage, error) {
+	var teamMatchStats sofascore_models.MatchStatsMessage
 
 	matchStats := s.Config.SofascoreApi.TeamEndpoints.TeamMatchStats
 	endpoint := fmt.Sprintf(matchStats, matchId)
@@ -34,7 +34,7 @@ func (s *TeamMatchStatsService) GetTeamMatchStats(ctx context.Context, matchId i
 }
 
 func (s *TeamMatchStatsService) UpdateLeagueMatchStats(ctx context.Context, seasonId int, leagueId int, round int) error {
-	var matchRound = round
+
 	teamMatchStats := s.Config.KafkaConfig.TopicsName.SofascoreTeamMatchStats
 
 	roundMatches, err := s.Event.GetRoundMatches(ctx, leagueId, seasonId, round)
@@ -42,7 +42,7 @@ func (s *TeamMatchStatsService) UpdateLeagueMatchStats(ctx context.Context, seas
 		return fmt.Errorf("getting round matches: %w", err)
 	}
 
-	jobs := make(chan models.Event, len(roundMatches.Events))
+	jobs := make(chan sofascore_models.Event, len(roundMatches.Events))
 
 	var statsWg sync.WaitGroup
 	for i := 0; i < s.Config.PublishWorkerCount; i++ {
@@ -51,8 +51,10 @@ func (s *TeamMatchStatsService) UpdateLeagueMatchStats(ctx context.Context, seas
 			defer statsWg.Done()
 			for match := range jobs {
 				matchStats, err := s.GetTeamMatchStats(ctx, match.ID)
+				matchStats.SeasonId = seasonId
+				matchStats.LeagueId = leagueId
 				matchStats.MatchID = match.ID
-				matchStats.Event = matchRound
+				matchStats.Event = round
 				matchStats.HomeTeamID = match.HomeTeam.ID
 				matchStats.AwayTeamID = match.AwayTeam.ID
 				if err != nil {
