@@ -82,6 +82,7 @@ type ConsumersGroupID struct {
 	FplLeaguesClassicStanding string `envconfig:"CONSUMERSGROUPID_FPL_LEAGUES_CLASSIC_STANDING"`
 	FplLeaguesH2hStanding     string `envconfig:"CONSUMERSGROUPID_FPL_LEAGUES_H2H_STANDING"`
 
+	SofascoreLeagueStanding     string `envconfig:"CONSUMERSGROUPID_SOFASCORE_LEAGUE_STANDINGS"`
 	SofascoreLeagueRoundMatches string `envconfig:"CONSUMERSGROUPID_SOFASCORE_LEAGUE_ROUND_MATCHES"`
 	SofascoreMatchLineups       string `envconfig:"CONSUMERSGROUPID_SOFASCORE_MATCH_LINEUPS"`
 	SofascoreMatchH2hHistory    string `envconfig:"CONSUMERSGROUPID_SOFASCORE_MATCH_H2H_HISTORY"`

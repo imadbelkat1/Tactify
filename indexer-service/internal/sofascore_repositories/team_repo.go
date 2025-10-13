@@ -8,18 +8,18 @@ import (
 )
 
 type TeamRepo struct {
-	db        *sql.DB
-	TeamModel *sofascore_models.TopTeamsMessage
+	db             *sql.DB
+	LeagueStanding *sofascore_models.StandingMessage
 }
 
-func NewTeamRepo(db *sql.DB, teamModel *sofascore_models.TopTeamsMessage) *TeamRepo {
+func NewTeamRepo(db *sql.DB, leagueStanding *sofascore_models.StandingMessage) *TeamRepo {
 	return &TeamRepo{
-		db:        db,
-		TeamModel: teamModel,
+		db:             db,
+		LeagueStanding: leagueStanding,
 	}
 }
 
-func (r *TeamRepo) InsertTeamOverallStats(stats sofascore_models.TopTeamsMessage) error {
+func (r *TeamRepo) InsertTeamInfo(standing sofascore_models.StandingMessage) error {
 	query := sq.Insert("teams").Columns(
 		"team_id", "name", "primary_color", "secondary_color",
 		"league_id", "season_id",
@@ -27,19 +27,18 @@ func (r *TeamRepo) InsertTeamOverallStats(stats sofascore_models.TopTeamsMessage
 		"ON CONFLICT (team_id, league_id, season_id) DO UPDATE SET " +
 			"name = EXCLUDED.name, " +
 			"primary_color = EXCLUDED.primary_color, " +
-			"secondary_color = EXCLUDED.secondary_color",
+			"secondary_color = EXCLUDED.secondary_color," +
+			"updated_at = CURRENT_TIMESTAMP",
 	).PlaceholderFormat(sq.Dollar)
 
-	for _, team := range stats.TopTeams.AccuratePasses {
-		query = query.Values(
-			team.Team.ID,
-			team.Team.Name,
-			team.Team.Colors.PrimaryColor,
-			team.Team.Colors.SecondaryColor,
-			team.LeagueID,
-			team.SeasonID,
-		)
-	}
+	query = query.Values(
+		standing.Row.Team.ID,
+		standing.Row.Team.Name,
+		standing.Row.Team.Colors.PrimaryColor,
+		standing.Row.Team.Colors.SecondaryColor,
+		standing.LeagueID,
+		standing.SeasonID,
+	)
 
 	sqlQuery, args, err := query.ToSql()
 	if err != nil {

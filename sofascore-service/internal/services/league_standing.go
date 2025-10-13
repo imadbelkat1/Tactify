@@ -18,7 +18,7 @@ type LeagueStandingService struct {
 	Producer *kafka.Producer
 }
 
-func (l *LeagueStandingService) UpdateLeagueStanding(ctx context.Context, seasonId int, leagueId int) error {
+func (l *LeagueStandingService) UpdateLeagueStanding(ctx context.Context, seasonId, leagueId int) error {
 	standing, err := l.GetLeagueStanding(ctx, seasonId, leagueId)
 	if err != nil {
 		return fmt.Errorf("getting league standing: %w", err)
@@ -31,7 +31,7 @@ func (l *LeagueStandingService) UpdateLeagueStanding(ctx context.Context, season
 	return nil
 }
 
-func (t *LeagueStandingService) GetLeagueStanding(ctx context.Context, seasonId int, leagueId int) (*sofascore_models.Standings, error) {
+func (t *LeagueStandingService) GetLeagueStanding(ctx context.Context, seasonId, leagueId int) (*sofascore_models.Standings, error) {
 	var standing *sofascore_models.Standings
 
 	leagueStandingEndpoint := t.Config.SofascoreApi.LeagueEndpoints.LeagueSeasonStandings // /unique-tournament/%d/season/%d/standings/total

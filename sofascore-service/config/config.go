@@ -19,13 +19,15 @@ type SofascoreConfig struct {
 }
 
 type SofascoreApi struct {
-	BaseURL         string `envconfig:"SOFASCOREAPI_BASE_URL"`
-	SeasonsIDs      SeasonsIDs
-	LeaguesIDs      LeaguesIDs
-	LeagueEndpoints LeagueEndpoints
-	MatchEndpoints  MatchEndpoints
-	TeamEndpoints   TeamEndpoints
-	PlayerEndpoints PlayerEndpoints
+	BaseURL                string `envconfig:"SOFASCOREAPI_BASE_URL"`
+	SeasonsID              SeasonsIDs
+	LaLigaSeasonsIDs       LaLigaSeasonsIDs
+	PremierLeagueSeasonIDs PremierLeagueSeasonIDs
+	LeaguesID              LeaguesIDs
+	LeagueEndpoints        LeagueEndpoints
+	MatchEndpoints         MatchEndpoints
+	TeamEndpoints          TeamEndpoints
+	PlayerEndpoints        PlayerEndpoints
 }
 
 type SeasonsIDs struct {
@@ -71,6 +73,48 @@ type SeasonsIDs struct {
 type LeaguesIDs struct {
 	LaLiga        int `envconfig:"SOFASCOREAPI_LALIGA_ID"`
 	PremierLeague int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_ID"`
+}
+
+type LaLigaSeasonsIDs struct {
+	LaLiga2526 int `envconfig:"SOFASCOREAPI_LALIGA_2526_SEASON_ID"`
+	Laliga2425 int `envconfig:"SOFASCOREAPI_LALIGA_2425_SEASON_ID"`
+	LaLiga2324 int `envconfig:"SOFASCOREAPI_LALIGA_2324_SEASON_ID"`
+	Laliga2223 int `envconfig:"SOFASCOREAPI_LALIGA_2223_SEASON_ID"`
+	Laliga2122 int `envconfig:"SOFASCOREAPI_LALIGA_2122_SEASON_ID"`
+	Laliga2021 int `envconfig:"SOFASCOREAPI_LALIGA_2021_SEASON_ID"`
+	Laliga1920 int `envconfig:"SOFASCOREAPI_LALIGA_1920_SEASON_ID"`
+	Laliga1819 int `envconfig:"SOFASCOREAPI_LALIGA_1819_SEASON_ID"`
+	Laliga1718 int `envconfig:"SOFASCOREAPI_LALIGA_1718_SEASON_ID"`
+	Laliga1617 int `envconfig:"SOFASCOREAPI_LALIGA_1617_SEASON_ID"`
+	Laliga1516 int `envconfig:"SOFASCOREAPI_LALIGA_1516_SEASON_ID"`
+	Laliga1415 int `envconfig:"SOFASCOREAPI_LALIGA_1415_SEASON_ID"`
+	Laliga1314 int `envconfig:"SOFASCOREAPI_LALIGA_1314_SEASON_ID"`
+	Laliga1213 int `envconfig:"SOFASCOREAPI_LALIGA_1213_SEASON_ID"`
+	Laliga1112 int `envconfig:"SOFASCOREAPI_LALIGA_1112_SEASON_ID"`
+	Laliga1011 int `envconfig:"SOFASCOREAPI_LALIGA_1011_SEASON_ID"`
+}
+
+type PremierLeagueSeasonIDs struct {
+	PremierLeague2526 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2526_SEASON_ID"`
+	PremierLeague2425 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2425_SEASON_ID"`
+	PremierLeague2324 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2324_SEASON_ID"`
+	PremierLeague2223 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2223_SEASON_ID"`
+	PremierLeague2122 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2122_SEASON_ID"`
+	PremierLeague2021 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2021_SEASON_ID"`
+	PremierLeague1920 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1920_SEASON_ID"`
+	PremierLeague1819 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1819_SEASON_ID"`
+	PremierLeague1718 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1718_SEASON_ID"`
+	PremierLeague1617 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1617_SEASON_ID"`
+	PremierLeague1516 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1516_SEASON_ID"`
+	PremierLeague1415 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1415_SEASON_ID"`
+	PremierLeague1314 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1314_SEASON_ID"`
+	PremierLeague1213 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1213_SEASON_ID"`
+	PremierLeague1112 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1112_SEASON_ID"`
+	PremierLeague1011 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1011_SEASON_ID"`
+	PremierLeague0910 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0910_SEASON_ID"`
+	PremierLeague0809 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0809_SEASON_ID"`
+	PremierLeague0708 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0708_SEASON_ID"`
+	PremierLeague0607 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0607_SEASON_ID"`
 }
 type LeagueEndpoints struct {
 	LeagueSeasonStandings string `envconfig:"SOFASCOREAPI_LEAGUE_SEASON_STANDINGS_ENDPOINT"` // /unique-tournament/%d/season/%d/standings/total

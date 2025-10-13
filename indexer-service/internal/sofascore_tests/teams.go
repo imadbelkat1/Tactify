@@ -42,7 +42,7 @@ func main() {
 	log.Println("✅ Database connected")
 
 	// Initialize ONLY fixture repo
-	teamRepo := sofascore_repositories.NewTeamRepo(db, &sofascore_models.TopTeamsMessage{})
+	teamRepo := sofascore_repositories.NewTeamRepo(db, &sofascore_models.StandingMessage{})
 
 	// Initialize sofascore_handler with nil for other repos
 	h := sofascore_handler.NewHandler(
@@ -54,7 +54,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	topic := cfg.Kafka.TopicsName.SofascoreTopTeamsStats
+	topic := cfg.Kafka.TopicsName.SofascoreLeagueStandings
 
 	h.Route(ctx, topic)
 	log.Printf("✅ Handler goroutine launched for topic: %s", topic)

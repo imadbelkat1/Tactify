@@ -30,8 +30,8 @@ func TestTeamMatchStatsService(t *testing.T) {
 
 	log.Println("Calling FPL API...")
 
-	seasonId := service.Config.SofascoreApi.SeasonsIDs.PremierLeague2526
-	leagueId := service.Config.SofascoreApi.LeaguesIDs.PremierLeague
+	seasonId := service.Config.SofascoreApi.SeasonsID.PremierLeague2526
+	leagueId := service.Config.SofascoreApi.LeaguesID.PremierLeague
 	log.Println(seasonId)
 	log.Println(leagueId)
 
