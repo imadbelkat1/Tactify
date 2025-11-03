@@ -39,6 +39,12 @@ func NewHandler(
 			kafkaCfg.TopicsName.SofascoreLeagueStandings,
 			kafkaCfg.ConsumersGroupID.SofascoreLeagueStanding,
 		)
+
+		h.consumers[kafkaCfg.TopicsName.SofascoreTeamOverallStats] = kafka.NewConsumer(
+			kafkaCfg,
+			kafkaCfg.TopicsName.SofascoreTeamOverallStats,
+			kafkaCfg.ConsumersGroupID.SofascoreTeamOverallStats,
+		)
 	}
 
 	return h
@@ -49,7 +55,8 @@ type HandlerFunc func(ctx context.Context)
 func (h *Handler) Route(ctx context.Context, topic string) {
 
 	handlers := map[string]HandlerFunc{
-		h.kafkaConfig.TopicsName.SofascoreLeagueStandings: h.handleTeamsInfo,
+		h.kafkaConfig.TopicsName.SofascoreLeagueStandings:  h.handleTeamsInfo,
+		h.kafkaConfig.TopicsName.SofascoreTeamOverallStats: h.handleTeamStats,
 	}
 
 	if fn, ok := handlers[topic]; ok {
@@ -190,5 +197,18 @@ func (h *Handler) handleTeamsInfo(ctx context.Context) {
 		},
 		h.teamRepo.InsertTeamInfo,
 	)
+}
 
+func (h *Handler) handleTeamStats(ctx context.Context) {
+	batchProcess(
+		ctx,
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreTeamOverallStats],
+		1,
+		h.config.FlushInterval,
+		h.kafkaConfig.TopicsName.SofascoreTeamOverallStats,
+		func(t sofascore_models.TeamOverallStatsMessage) string {
+			return fmt.Sprintf("%d", time.Now().UnixNano())
+		},
+		h.teamRepo.InsertTeamOverallStats,
+	)
 }

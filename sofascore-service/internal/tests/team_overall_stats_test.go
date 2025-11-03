@@ -8,19 +8,24 @@ import (
 	"github.com/imadbelkat1/kafka"
 	"github.com/imadbelkat1/sofascore-service/config"
 	sofascore_api "github.com/imadbelkat1/sofascore-service/internal/api"
-	leagueStandingService "github.com/imadbelkat1/sofascore-service/internal/services"
+	teamOverallStatsService "github.com/imadbelkat1/sofascore-service/internal/services"
 )
 
-func TestLeagueStandingService(t *testing.T) {
+func TestTeamOverallStats(t *testing.T) {
 	ctx := context.Background()
 	if testing.Short() {
 		t.Skip("Skipping API test")
 	}
 
-	service := &leagueStandingService.LeagueStandingService{
+	service := &teamOverallStatsService.TeamOverallStatsService{
 		Config:   config.LoadConfig(),
 		Client:   sofascore_api.NewSofascoreApiClient(config.LoadConfig()),
 		Producer: kafka.NewProducer(),
+		Standing: &teamOverallStatsService.LeagueStandingService{
+			Config:   config.LoadConfig(),
+			Client:   sofascore_api.NewSofascoreApiClient(config.LoadConfig()),
+			Producer: kafka.NewProducer(),
+		},
 	}
 
 	var laLigaSeasonIDs []int
@@ -45,16 +50,14 @@ func TestLeagueStandingService(t *testing.T) {
 	for _, leagueId := range leagueIDs {
 		if leagueId == service.Config.SofascoreApi.LeaguesID.LaLiga {
 			for _, seasonId := range laLigaSeasonIDs {
-				t.Logf("Fetching LaLiga SeasonID: %d, LeagueID: %d", seasonId, leagueId)
-				if err := service.UpdateLeagueStanding(ctx, seasonId, leagueId); err != nil {
-					t.Fatalf("Error updating league standing for LaLiga SeasonID %d: %v", seasonId, err)
+				if err := service.UpdateAllTeamsOverallStats(ctx, leagueId, seasonId); err != nil {
+					t.Fatalf("Error updating teams overall stats for La Liga SeasonID %d: %v", seasonId, err)
 				}
 			}
 		} else if leagueId == service.Config.SofascoreApi.LeaguesID.PremierLeague {
 			for _, seasonId := range premierLeagueSeasonIDs {
-				t.Logf("Fetching Premier League SeasonID: %d, LeagueID: %d", seasonId, leagueId)
-				if err := service.UpdateLeagueStanding(ctx, seasonId, leagueId); err != nil {
-					t.Fatalf("Error updating league standing for Premier League SeasonID %d: %v", seasonId, err)
+				if err := service.UpdateAllTeamsOverallStats(ctx, leagueId, seasonId); err != nil {
+					t.Fatalf("Error updating teams overall stats for Premier League SeasonID %d: %v", seasonId, err)
 				}
 			}
 		}

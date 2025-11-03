@@ -32,12 +32,12 @@ func (l *LeagueStandingService) UpdateLeagueStanding(ctx context.Context, season
 }
 
 func (t *LeagueStandingService) GetLeagueStanding(ctx context.Context, seasonId, leagueId int) (*sofascore_models.Standings, error) {
-	var standing *sofascore_models.Standings
+	standing := &sofascore_models.Standings{}
 
 	leagueStandingEndpoint := t.Config.SofascoreApi.LeagueEndpoints.LeagueSeasonStandings // /unique-tournament/%d/season/%d/standings/total
 	endpoint := fmt.Sprintf(leagueStandingEndpoint, leagueId, seasonId)
 
-	if err := t.Client.GetAndUnmarshal(ctx, endpoint, &standing); err != nil {
+	if err := t.Client.GetAndUnmarshal(ctx, endpoint, standing); err != nil {
 		return nil, fmt.Errorf("fetching league standing data: %w", err)
 	}
 

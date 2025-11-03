@@ -76,12 +76,12 @@ func publishStatsConcurrent[T TeamStatter](
 }
 
 func (s *TopTeamsStatsService) GetTopTeamsStats(ctx context.Context, leagueId int, seasonId int) (*sofascore_models.TopTeamsMessage, error) {
-	var topTeams *sofascore_models.TopTeamsMessage
+	topTeams := &sofascore_models.TopTeamsMessage{}
 
 	topTeamsStats := s.Config.SofascoreApi.TeamEndpoints.TopTeamsStats
 	endpoint := fmt.Sprintf(topTeamsStats, leagueId, seasonId)
 
-	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &topTeams); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, endpoint, topTeams); err != nil {
 		return nil, err
 	}
 
@@ -90,7 +90,6 @@ func (s *TopTeamsStatsService) GetTopTeamsStats(ctx context.Context, leagueId in
 
 // UpdateLeagueTopTeamsStats Concurrent
 func (s *TopTeamsStatsService) UpdateLeagueTopTeamsStats(ctx context.Context, seasonId int, leagueId int) error {
-
 	topTeamsStats, err := s.GetTopTeamsStats(ctx, leagueId, seasonId)
 	if err != nil {
 		return fmt.Errorf("getting top teams stats: %w", err)

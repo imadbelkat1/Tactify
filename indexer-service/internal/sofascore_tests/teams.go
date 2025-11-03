@@ -54,12 +54,14 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	topic := cfg.Kafka.TopicsName.SofascoreLeagueStandings
+	leagueStandingTopic := cfg.Kafka.TopicsName.SofascoreLeagueStandings
+	overallStatsTopic := cfg.Kafka.TopicsName.SofascoreTeamOverallStats
 
-	h.Route(ctx, topic)
-	log.Printf("✅ Handler goroutine launched for topic: %s", topic)
+	h.Route(ctx, leagueStandingTopic)
+	h.Route(ctx, overallStatsTopic)
 
-	log.Printf("✅ Sofascore Team indexer started, listening for %s...", topic)
+	log.Printf("✅ Sofascore Team indexer started, listening for %s...", leagueStandingTopic)
+	log.Printf("✅ Sofascore Team indexer started, listening for %s...", overallStatsTopic)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)

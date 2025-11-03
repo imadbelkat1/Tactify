@@ -16,16 +16,16 @@ type EventsService struct {
 }
 
 func (e *EventsService) GetRoundMatches(ctx context.Context, leagueId int, season int, round int) (*sofascore_models.Events, error) {
-	var Event sofascore_models.Events
+	event := &sofascore_models.Events{}
 	leagueRoundMatches := e.Config.SofascoreApi.LeagueEndpoints.LeagueRoundMatches //unique-tournament/%d/season/%d/events/round/%d
 	log.Printf("leagueRoundMatches raw: %q", leagueRoundMatches)
 
 	endpoint := fmt.Sprintf(leagueRoundMatches, leagueId, season, round)
 	log.Println(endpoint)
 
-	if err := e.Client.GetAndUnmarshal(ctx, endpoint, &Event); err != nil {
+	if err := e.Client.GetAndUnmarshal(ctx, endpoint, event); err != nil {
 		return nil, fmt.Errorf("fetching events data: %w", err)
 	}
 
-	return &Event, nil
+	return event, nil
 }

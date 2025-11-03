@@ -21,20 +21,19 @@ type TeamMatchStatsService struct {
 }
 
 func (s *TeamMatchStatsService) GetTeamMatchStats(ctx context.Context, matchId int) (*sofascore_models.MatchStatsMessage, error) {
-	var teamMatchStats sofascore_models.MatchStatsMessage
+	teamMatchStats := &sofascore_models.MatchStatsMessage{}
 
 	matchStats := s.Config.SofascoreApi.TeamEndpoints.TeamMatchStats
 	endpoint := fmt.Sprintf(matchStats, matchId)
 
-	if err := s.Client.GetAndUnmarshal(ctx, endpoint, &teamMatchStats); err != nil {
+	if err := s.Client.GetAndUnmarshal(ctx, endpoint, teamMatchStats); err != nil {
 		return nil, err
 	}
 
-	return &teamMatchStats, nil
+	return teamMatchStats, nil
 }
 
 func (s *TeamMatchStatsService) UpdateLeagueMatchStats(ctx context.Context, seasonId int, leagueId int, round int) error {
-
 	teamMatchStats := s.Config.KafkaConfig.TopicsName.SofascoreTeamMatchStats
 
 	roundMatches, err := s.Event.GetRoundMatches(ctx, leagueId, seasonId, round)
