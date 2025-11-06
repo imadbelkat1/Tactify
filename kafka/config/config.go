@@ -54,6 +54,7 @@ type TopicsName struct {
 	SofascorePlayerTeamStats    string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_TEAM_STATS"`
 	SofascorePlayerSeasonsStats string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_SEASONS_STATS"`
 	SofascorePlayerAttributes   string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_ATTRIBUTES"`
+	SofascorePlayerMatchStats   string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_MATCH_STATS"`
 }
 type TopicsRetention struct {
 	FplPlayers               string `envconfig:"TOPICSRETENTION_FPL_PLAYERS"`

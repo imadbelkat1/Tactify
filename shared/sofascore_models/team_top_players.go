@@ -14,10 +14,11 @@ type BaseStats struct {
 
 // Core types
 type Player struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	ShortName string `json:"shortName"`
-	Position  string `json:"position"`
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	ShortName    string `json:"shortName"`
+	Position     string `json:"position"`
+	JerseyNumber string `json:"jerseyNumber"`
 }
 
 // TopPlayers struct

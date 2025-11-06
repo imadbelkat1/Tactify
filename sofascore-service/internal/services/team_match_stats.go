@@ -38,7 +38,7 @@ func (s *TeamMatchStatsService) UpdateLeagueMatchStats(ctx context.Context, seas
 
 	log.Printf("Starting UpdateLeagueMatchStats for league=%d, season=%d, round=%d", leagueId, seasonId, round)
 
-	roundMatches, err := s.Event.GetRoundMatches(ctx, leagueId, seasonId, round)
+	roundMatches, err := s.Event.GetRoundMatches(ctx, seasonId, leagueId, round)
 	if err != nil {
 		return fmt.Errorf("getting round matches: %w", err)
 	}
@@ -110,6 +110,7 @@ func (s *TeamMatchStatsService) UpdateLeagueMatchStats(ctx context.Context, seas
 								Event:      round,
 								HomeTeamID: match.HomeTeam.ID,
 								AwayTeamID: match.AwayTeam.ID,
+								GroupName:  group.GroupName,
 								MatchStatistics: sofascore_models.StatsMessage{
 									Period:         period.Period,
 									Key:            stat.Key,

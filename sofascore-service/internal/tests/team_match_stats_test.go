@@ -2,8 +2,10 @@ package tests
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -29,11 +31,11 @@ func TestTeamMatchStatsService(t *testing.T) {
 		Producer: kafka.NewProducer(),
 	}
 
-	log.Println("Calling FPL API...")
+	log.Println("Calling SofaScore API with concurrent processing...")
 
+	// Extract season IDs
 	var laLigaSeasonIDs []int
 	var premierLeagueSeasonIDs []int
-	var leagueIDs []int
 
 	ligaSeason := reflect.ValueOf(service.Config.SofascoreApi.LaLigaSeasonsIDs)
 	for i := 0; i < ligaSeason.NumField(); i++ {
@@ -45,38 +47,77 @@ func TestTeamMatchStatsService(t *testing.T) {
 		premierLeagueSeasonIDs = append(premierLeagueSeasonIDs, int(plSeason.Field(i).Int()))
 	}
 
-	league := reflect.ValueOf(service.Config.SofascoreApi.LeaguesID)
-	for i := 0; i < league.NumField(); i++ {
-		leagueIDs = append(leagueIDs, int(league.Field(i).Int()))
+	// Build work items
+	type workItem struct {
+		seasonID int
+		leagueID int
+		round    int
 	}
 
-	start := time.Now()
-	for _, leagueId := range leagueIDs {
-		if leagueId == service.Config.SofascoreApi.LeaguesID.LaLiga {
-			for _, seasonId := range laLigaSeasonIDs {
-				for round := 1; round <= 38; round++ {
-					log.Printf("Processing round %d", round)
-					err := service.UpdateLeagueMatchStats(ctx, seasonId, leagueId, round)
-					if err != nil {
-						t.Fatalf("UpdateLeagueMatchStats failed: %v", err)
-					}
-				}
-			}
-		} else if leagueId == service.Config.SofascoreApi.LeaguesID.PremierLeague {
-			for _, seasonId := range premierLeagueSeasonIDs {
-				for round := 1; round <= 38; round++ {
-					log.Printf("Processing round %d", round)
-					err := service.UpdateLeagueMatchStats(ctx, seasonId, leagueId, round)
-					if err != nil {
-						t.Fatalf("UpdateLeagueMatchStats failed: %v", err)
-					}
-				}
-			}
+	var work []workItem
+
+	for _, seasonID := range laLigaSeasonIDs {
+		for round := 1; round <= 38; round++ {
+			work = append(work, workItem{seasonID, service.Config.SofascoreApi.LeaguesID.LaLiga, round})
 		}
 	}
 
-	elapsed := time.Since(start)
+	for _, seasonID := range premierLeagueSeasonIDs {
+		for round := 1; round <= 38; round++ {
+			work = append(work, workItem{seasonID, service.Config.SofascoreApi.LeaguesID.PremierLeague, round})
+		}
+	}
 
-	log.Printf("Publishing completed in: %v", elapsed)
-	t.Log("Sofascore API test completed successfully")
+	// Process with worker pool
+	start := time.Now()
+	const numWorkers = 10 // Tune this based on API rate limits
+
+	workChan := make(chan workItem, len(work))
+	errChan := make(chan error, len(work))
+
+	var wg sync.WaitGroup
+
+	// Start workers
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
+			for item := range workChan {
+				log.Printf("[Worker %d] Processing season %d, league %d, round %d",
+					workerID, item.seasonID, item.leagueID, item.round)
+
+				err := service.UpdateLeagueMatchStats(ctx, item.seasonID, item.leagueID, item.round)
+				if err != nil {
+					errChan <- fmt.Errorf("season %d, league %d, round %d: %w",
+						item.seasonID, item.leagueID, item.round, err)
+				}
+			}
+		}(i)
+	}
+
+	// Send work
+	for _, item := range work {
+		workChan <- item
+	}
+	close(workChan)
+
+	// Wait for completion
+	wg.Wait()
+	close(errChan)
+
+	// Collect errors
+	var errs []error
+	for err := range errChan {
+		errs = append(errs, err)
+	}
+
+	elapsed := time.Since(start)
+	log.Printf("Processing completed in: %v", elapsed)
+	log.Printf("Processed %d items with %d workers", len(work), numWorkers)
+
+	if len(errs) > 0 {
+		t.Fatalf("Processing failed with %d errors. First error: %v", len(errs), errs[0])
+	}
+
+	t.Log("SofaScore API test completed successfully")
 }

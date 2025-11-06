@@ -2,19 +2,25 @@ package sofascore_repositories
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/imadbelkat1/indexer-service/internal/sofascore_helper"
 	"github.com/imadbelkat1/shared/sofascore_models"
 )
 
 type TeamRepo struct {
 	db               *sql.DB
+	Helper           *sofascore_helper.Helper
 	LeagueStanding   *sofascore_models.StandingMessage
 	TeamOverallStats *sofascore_models.TeamOverallStatsMessage
 	MatchStats       *sofascore_models.MatchStatsMessage
 }
 
-func NewTeamRepo(db *sql.DB, leagueStanding *sofascore_models.StandingMessage,
+func NewTeamRepo(
+	db *sql.DB,
+	leagueStanding *sofascore_models.StandingMessage,
 	ovrStats *sofascore_models.TeamOverallStatsMessage,
 	MatchStats *sofascore_models.MatchStatsMessage) *TeamRepo {
 	return &TeamRepo{
@@ -25,7 +31,7 @@ func NewTeamRepo(db *sql.DB, leagueStanding *sofascore_models.StandingMessage,
 	}
 }
 
-func (r *TeamRepo) InsertTeamInfo(standing sofascore_models.StandingMessage) error {
+func (t *TeamRepo) InsertTeamInfo(standing sofascore_models.StandingMessage) error {
 	query := sq.Insert("teams").
 		Columns(
 			"team_id", "name", "league_id", "primary_color", "secondary_color").
@@ -46,7 +52,7 @@ func (r *TeamRepo) InsertTeamInfo(standing sofascore_models.StandingMessage) err
 		return err
 	}
 
-	_, err = r.db.Exec(sqlQuery, args...)
+	_, err = t.db.Exec(sqlQuery, args...)
 	if err != nil {
 		return err
 	}
@@ -493,54 +499,69 @@ func (r *TeamRepo) InsertTeamOverallStats(ovrStats sofascore_models.TeamOverallS
 	return err
 }
 
-func periodToNum(period string) int {
-	switch period {
-	case "ALL":
-		return 0
-	case "1ST":
-		return 1
-	case "2ND":
-		return 2
-	}
-	return 9999
-}
-
 func (r *TeamRepo) InsertTeamMatchStats(matchStat sofascore_models.MatchStatsMessage) error {
-	query := sq.Insert("team_match_stats").
-		Columns(
-			"league_id", "season_id", "match_id", "home_team_id", "away_team_id", "event",
-			"stat", "home_value", "away_value", "home_total", "away_total", "compare_code",
-			"stat_type", "render_type", "period").
-		Suffix(
-			"ON CONFLICT (league_id, season_id, match_id, home_team_id, away_team_id, period, stat) " +
-				"DO UPDATE SET" +
-				" home_value = EXCLUDED.home_value, " +
-				" away_value = EXCLUDED.away_value, " +
-				" home_total = EXCLUDED.home_total, " +
-				" away_total = EXCLUDED.away_total, " +
-				"compare_code = EXCLUDED.compare_code, " +
-				"stat_type = EXCLUDED.stat_type, " +
-				"render_type = EXCLUDED.render_type, " +
-				"updated_at = EXCLUDED.updated_at ").
-		PlaceholderFormat(sq.Dollar)
+	var tableName string
+	columnMap := make(map[string]interface{})
 
-	query = query.Values(
-		matchStat.LeagueId,
-		matchStat.SeasonId,
-		matchStat.MatchID,
-		matchStat.HomeTeamID,
-		matchStat.AwayTeamID,
-		matchStat.Event,
-		matchStat.MatchStatistics.Name,
-		matchStat.MatchStatistics.HomeValue,
-		matchStat.MatchStatistics.AwayValue,
-		matchStat.MatchStatistics.HomeTotal,
-		matchStat.MatchStatistics.AwayTotal,
-		matchStat.MatchStatistics.CompareCode,
-		matchStat.MatchStatistics.StatisticsType,
-		matchStat.MatchStatistics.RenderType,
-		periodToNum(matchStat.MatchStatistics.Period),
-	)
+	// Always add base columns
+	columnMap["match_id"] = matchStat.MatchID
+	columnMap["home_team_id"] = matchStat.HomeTeamID
+	columnMap["away_team_id"] = matchStat.AwayTeamID
+	columnMap["period"] = matchStat.MatchStatistics.Period
+
+	stat := matchStat.MatchStatistics
+
+	switch matchStat.GroupName {
+	case "Match overview":
+		tableName = "match_overview"
+		r.Helper.MapOverviewStat(stat, columnMap)
+	case "Shots":
+		tableName = "match_shots"
+		r.Helper.MapShotsStat(stat, columnMap)
+	case "Attack":
+		tableName = "match_attack"
+		r.Helper.MapAttackStat(stat, columnMap)
+	case "Passes":
+		tableName = "match_passes"
+		r.Helper.MapPassesStat(stat, columnMap)
+	case "Duels":
+		tableName = "match_duels"
+		r.Helper.MapDuelsStat(stat, columnMap)
+	case "Defending":
+		tableName = "match_defending"
+		r.Helper.MapDefendingStat(stat, columnMap)
+	case "Goalkeeping":
+		tableName = "match_goalkeeping"
+		r.Helper.MapGoalkeepingStat(stat, columnMap)
+	default:
+		return fmt.Errorf("unknown group name: %s", matchStat.GroupName)
+	}
+
+	if len(columnMap) == 4 { // Only base columns, no stat columns added
+		return nil
+	}
+
+	// Build query from map
+	columns := make([]string, 0, len(columnMap))
+	values := make([]interface{}, 0, len(columnMap))
+
+	for col, val := range columnMap {
+		columns = append(columns, col)
+		values = append(values, val)
+	}
+
+	updateClauses := make([]string, 0, len(columns)-4)
+	for _, col := range columns {
+		if col != "match_id" && col != "home_team_id" && col != "away_team_id" && col != "period" {
+			updateClauses = append(updateClauses, fmt.Sprintf("%s = EXCLUDED.%s", col, col))
+		}
+	}
+
+	query := sq.Insert(tableName).
+		Columns(columns...).
+		Values(values...).
+		Suffix("ON CONFLICT (match_id, period) DO UPDATE SET " + strings.Join(updateClauses, ", ")).
+		PlaceholderFormat(sq.Dollar)
 
 	sqlQuery, args, err := query.ToSql()
 	if err != nil {
@@ -548,9 +569,5 @@ func (r *TeamRepo) InsertTeamMatchStats(matchStat sofascore_models.MatchStatsMes
 	}
 
 	_, err = r.db.Exec(sqlQuery, args...)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

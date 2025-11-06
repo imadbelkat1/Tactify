@@ -7,6 +7,7 @@ type MatchStatsMessage struct {
 	MatchID         int          `json:"match_id"`
 	HomeTeamID      int          `json:"homeTeamId"`
 	AwayTeamID      int          `json:"awayTeamId"`
+	GroupName       string       `json:"groupName"`
 	MatchStatistics StatsMessage `json:"statistics"`
 }
 

@@ -1,4 +1,4 @@
-package main
+package sofascore_tests
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"testing"
 	"time"
 
 	"github.com/imadbelkat1/indexer-service/config"
@@ -17,7 +18,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func main() {
+func TestTeamRepo(t *testing.T) {
 	// Load config
 	cfg := config.LoadConfig()
 
@@ -53,6 +54,7 @@ func main() {
 		cfg,
 		&cfg.Kafka,
 		teamRepo, // teamRepo
+		nil,
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())

@@ -1,6 +1,6 @@
 -- =====================================================
 -- Season-Proof FPL Database Schema
--- Using surrogate keys with season isolation
+-- Using surrogate keys with seasonId isolation
 -- =====================================================
 
 -- Drop existing tables (in reverse order of dependencies)
@@ -39,7 +39,7 @@ CREATE TABLE seasons (
 );
 
 COMMENT ON TABLE seasons IS 'Premier League seasons';
-COMMENT ON COLUMN seasons.is_current IS 'Only one season should have is_current = true';
+COMMENT ON COLUMN seasons.is_current IS 'Only one seasonId should have is_current = true';
 
 -- =====================================================
 -- Teams
@@ -75,9 +75,9 @@ CREATE TABLE teams (
                        UNIQUE(team_code, season_id)
 );
 
-COMMENT ON TABLE teams IS 'Premier League teams by season';
-COMMENT ON COLUMN teams.fpl_team_id IS 'FPL API team ID (resets each season)';
-COMMENT ON COLUMN teams.team_code IS 'FPL API team code (resets each season)';
+COMMENT ON TABLE teams IS 'Premier League teams by seasonId';
+COMMENT ON COLUMN teams.fpl_team_id IS 'FPL API team ID (resets each seasonId)';
+COMMENT ON COLUMN teams.team_code IS 'FPL API team code (resets each seasonId)';
 
 CREATE INDEX idx_teams_season ON teams(season_id);
 CREATE INDEX idx_teams_fpl_id ON teams(fpl_team_id, season_id);
@@ -116,8 +116,8 @@ CREATE TABLE players (
                          UNIQUE(player_code, season_id)
 );
 
-COMMENT ON TABLE players IS 'Player master data by season';
-COMMENT ON COLUMN players.fpl_player_id IS 'FPL API player ID (resets each season)';
+COMMENT ON TABLE players IS 'Player master data by seasonId';
+COMMENT ON COLUMN players.fpl_player_id IS 'FPL API player ID (resets each seasonId)';
 COMMENT ON COLUMN players.player_code IS 'FPL API player code (may persist across seasons)';
 COMMENT ON COLUMN players.element_type_id IS '1=GKP, 2=DEF, 3=MID, 4=FWD';
 
@@ -176,7 +176,7 @@ CREATE TABLE player_season_stats (
                                      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON TABLE player_season_stats IS 'Player cumulative season statistics';
+COMMENT ON TABLE player_season_stats IS 'Player cumulative seasonId statistics';
 
 CREATE TABLE player_ict_stats (
                                   id SERIAL PRIMARY KEY,
@@ -264,8 +264,8 @@ CREATE TABLE fixtures (
                           UNIQUE(fixture_code, season_id)
 );
 
-COMMENT ON TABLE fixtures IS 'Match fixtures by season';
-COMMENT ON COLUMN fixtures.fpl_fixture_id IS 'FPL API fixture ID (resets each season)';
+COMMENT ON TABLE fixtures IS 'Match fixtures by seasonId';
+COMMENT ON COLUMN fixtures.fpl_fixture_id IS 'FPL API fixture ID (resets each seasonId)';
 COMMENT ON COLUMN fixtures.event IS 'Gameweek number';
 
 CREATE INDEX idx_fixtures_season ON fixtures(season_id);
@@ -363,7 +363,7 @@ CREATE TABLE manager_season_history (
                                         UNIQUE(manager_id, season_name)
 );
 
-COMMENT ON TABLE manager_season_history IS 'Manager performance per season';
+COMMENT ON TABLE manager_season_history IS 'Manager performance per seasonId';
 
 CREATE INDEX idx_manager_season_manager ON manager_season_history(manager_id);
 
