@@ -2,7 +2,6 @@ package tests
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/imadbelkat1/kafka"
@@ -12,64 +11,37 @@ import (
 )
 
 func TestMatchLineupService(t *testing.T) {
-	ctx := context.Background()
 	if testing.Short() {
 		t.Skip("Skipping API test")
 	}
 
-	eventsService := &services.EventsService{
-		Config: config.LoadConfig(),
-		Client: sofascore_api.NewSofascoreApiClient(config.LoadConfig()),
-	}
-
+	cfg := config.LoadConfig()
 	service := &services.MatchLineupService{
-		Event:    eventsService,
-		Config:   config.LoadConfig(),
-		Client:   sofascore_api.NewSofascoreApiClient(config.LoadConfig()),
+		Event: &services.EventsService{
+			Config: cfg,
+			Client: sofascore_api.NewSofascoreApiClient(cfg),
+		},
+		Config:   cfg,
+		Client:   sofascore_api.NewSofascoreApiClient(cfg),
 		Producer: kafka.NewProducer(),
 	}
 
-	var laLigaSeasonIDs []int
-	var premierLeagueSeasonIDs []int
-	var leagueIDs []int
-
-	ligaSeason := reflect.ValueOf(service.Config.SofascoreApi.LaLigaSeasonsIDs)
-	for i := 0; i < ligaSeason.NumField(); i++ {
-		laLigaSeasonIDs = append(laLigaSeasonIDs, int(ligaSeason.Field(i).Int()))
+	ctx := context.Background()
+	leagues := map[string]int{
+		"LALIGA":        cfg.SofascoreApi.LeaguesID.LaLiga,
+		"PREMIERLEAGUE": cfg.SofascoreApi.LeaguesID.PremierLeague,
 	}
 
-	plSeason := reflect.ValueOf(service.Config.SofascoreApi.PremierLeagueSeasonIDs)
-	for i := 0; i < plSeason.NumField(); i++ {
-		premierLeagueSeasonIDs = append(premierLeagueSeasonIDs, int(plSeason.Field(i).Int()))
-	}
-
-	league := reflect.ValueOf(service.Config.SofascoreApi.LeaguesID)
-	for i := 0; i < league.NumField(); i++ {
-		leagueIDs = append(leagueIDs, int(league.Field(i).Int()))
-	}
-
-	for _, leagueId := range leagueIDs {
-		if leagueId == service.Config.SofascoreApi.LeaguesID.LaLiga {
-			for _, seasonId := range laLigaSeasonIDs {
-				for i := 1; i <= 38; i++ {
-					t.Logf("Fetching LaLiga SeasonID: %d, LeagueID: %d, Round: %d", seasonId, leagueId, i)
-					if err := service.UpdatePlayersStats(ctx, seasonId, leagueId, i); err != nil {
-						t.Fatalf("Error updating player stats for LaLiga SeasonID %d, Round %d: %v", seasonId, i, err)
-					}
-				}
-			}
-		} else if leagueId == service.Config.SofascoreApi.LeaguesID.PremierLeague {
-			for _, seasonId := range premierLeagueSeasonIDs {
-				for i := 1; i <= 38; i++ {
-					t.Logf("Fetching Premier League SeasonID: %d, LeagueID: %d, Round: %d", seasonId, leagueId, i)
-					if err := service.UpdatePlayersStats(ctx, seasonId, leagueId, i); err != nil {
-						t.Fatalf("Error updating player stats for Premier League SeasonID %d, Round %d: %v", seasonId, i, err)
-					}
+	for leagueName, leagueID := range leagues {
+		for _, seasonID := range cfg.AllSeasons(leagueName) {
+			for round := 1; round <= 38; round++ {
+				t.Logf("Fetching %s SeasonID: %d, Round: %d", leagueName, seasonID, round)
+				if err := service.UpdatePlayersStats(ctx, seasonID, leagueID, round); err != nil {
+					t.Fatalf("Error: %v", err)
 				}
 			}
 		}
 	}
 
-	t.Log("Calling Sofascore API...")
-	t.Log("Sofascore API Publish test completed successfully")
+	t.Log("Test completed successfully")
 }

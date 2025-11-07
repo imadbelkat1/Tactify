@@ -1,7 +1,7 @@
 package sofascore_models
 
 type PlayerSeasonsStats struct {
-	All []PlayerSeasonStats `json:"playerSeasonStats"`
+	All []PlayerSeasonStats `json:"seasons"`
 }
 type PlayerSeasonStats struct {
 	PlayerID  int    `json:"playerId"`

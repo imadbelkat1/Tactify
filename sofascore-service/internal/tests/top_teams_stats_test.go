@@ -9,35 +9,32 @@ import (
 	"github.com/imadbelkat1/kafka"
 	"github.com/imadbelkat1/sofascore-service/config"
 	sofascore_api "github.com/imadbelkat1/sofascore-service/internal/api"
-	topTeamsStatservice "github.com/imadbelkat1/sofascore-service/internal/services"
+	"github.com/imadbelkat1/sofascore-service/internal/services"
 )
 
 func TestTopTeamsStatsService(t *testing.T) {
-	ctx := context.Background()
 	if testing.Short() {
 		t.Skip("Skipping API test")
 	}
 
-	service := &topTeamsStatservice.TopTeamsStatsService{
-		Config:   *config.LoadConfig(),
-		Client:   sofascore_api.NewSofascoreApiClient(config.LoadConfig()),
+	cfg := config.LoadConfig()
+	service := &services.TopTeamsStatsService{
+		Config:   *cfg,
+		Client:   sofascore_api.NewSofascoreApiClient(cfg),
 		Producer: kafka.NewProducer(),
 	}
 
-	log.Println("Calling FPL API...")
+	ctx := context.Background()
+	seasonID := cfg.MustGetSeasonID("PREMIERLEAGUE", "2526")
+	leagueID := cfg.SofascoreApi.LeaguesID.PremierLeague
 
-	seasonId := service.Config.SofascoreApi.SeasonsID.PremierLeague2526
-	leagueId := service.Config.SofascoreApi.LeaguesID.PremierLeague
-	log.Println(seasonId)
-	log.Println(leagueId)
+	log.Printf("Testing season %d, league %d", seasonID, leagueID)
 
 	start := time.Now()
-	err := service.UpdateLeagueTopTeamsStats(ctx, seasonId, leagueId)
-	if err != nil {
-		t.Fatalf("GetTopTeamsStats failed: %v", err)
+	if err := service.UpdateLeagueTopTeamsStats(ctx, seasonID, leagueID); err != nil {
+		t.Fatalf("Error: %v", err)
 	}
-	elapsed := time.Since(start)
 
-	log.Printf("Publishing completed in: %v", elapsed)
-	t.Log("Sofascore API test completed successfully")
+	log.Printf("Completed in %v", time.Since(start))
+	t.Log("Test completed successfully")
 }

@@ -1,9 +1,12 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
 
 	kafka "github.com/imadbelkat1/kafka/config"
 	"github.com/joho/godotenv"
@@ -14,6 +17,9 @@ type SofascoreConfig struct {
 	SofascoreApi SofascoreApi
 	KafkaConfig  kafka.KafkaConfig
 	Tor          TorConfig
+
+	// Dynamic season storage - indexed by league name
+	Seasons map[string]map[string]int // map[league]map[year]seasonID
 
 	PublishWorkerCount int `envconfig:"WORKER_PUBLISH_POOL_SIZE" default:"100"`
 	FetchWorkerCount   int `envconfig:"WORKER_FETCH_POOL_SIZE" default:"50"`
@@ -27,55 +33,12 @@ type TorConfig struct {
 }
 
 type SofascoreApi struct {
-	BaseURL                string `envconfig:"SOFASCOREAPI_BASE_URL"`
-	SeasonsID              SeasonsIDs
-	LaLigaSeasonsIDs       LaLigaSeasonsIDs
-	PremierLeagueSeasonIDs PremierLeagueSeasonIDs
-	LeaguesID              LeaguesIDs
-	LeagueEndpoints        LeagueEndpoints
-	MatchEndpoints         MatchEndpoints
-	TeamEndpoints          TeamEndpoints
-	PlayerEndpoints        PlayerEndpoints
-}
-
-type SeasonsIDs struct {
-	LaLiga2526 int `envconfig:"SOFASCOREAPI_LALIGA_2526_SEASON_ID"`
-	Laliga2425 int `envconfig:"SOFASCOREAPI_LALIGA_2425_SEASON_ID"`
-	LaLiga2324 int `envconfig:"SOFASCOREAPI_LALIGA_2324_SEASON_ID"`
-	Laliga2223 int `envconfig:"SOFASCOREAPI_LALIGA_2223_SEASON_ID"`
-	Laliga2122 int `envconfig:"SOFASCOREAPI_LALIGA_2122_SEASON_ID"`
-	Laliga2021 int `envconfig:"SOFASCOREAPI_LALIGA_2021_SEASON_ID"`
-	Laliga1920 int `envconfig:"SOFASCOREAPI_LALIGA_1920_SEASON_ID"`
-	Laliga1819 int `envconfig:"SOFASCOREAPI_LALIGA_1819_SEASON_ID"`
-	Laliga1718 int `envconfig:"SOFASCOREAPI_LALIGA_1718_SEASON_ID"`
-	Laliga1617 int `envconfig:"SOFASCOREAPI_LALIGA_1617_SEASON_ID"`
-	Laliga1516 int `envconfig:"SOFASCOREAPI_LALIGA_1516_SEASON_ID"`
-	Laliga1415 int `envconfig:"SOFASCOREAPI_LALIGA_1415_SEASON_ID"`
-	Laliga1314 int `envconfig:"SOFASCOREAPI_LALIGA_1314_SEASON_ID"`
-	Laliga1213 int `envconfig:"SOFASCOREAPI_LALIGA_1213_SEASON_ID"`
-	Laliga1112 int `envconfig:"SOFASCOREAPI_LALIGA_1112_SEASON_ID"`
-	Laliga1011 int `envconfig:"SOFASCOREAPI_LALIGA_1011_SEASON_ID"`
-
-	PremierLeague2526 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2526_SEASON_ID"`
-	PremierLeague2425 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2425_SEASON_ID"`
-	PremierLeague2324 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2324_SEASON_ID"`
-	PremierLeague2223 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2223_SEASON_ID"`
-	PremierLeague2122 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2122_SEASON_ID"`
-	PremierLeague2021 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2021_SEASON_ID"`
-	PremierLeague1920 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1920_SEASON_ID"`
-	PremierLeague1819 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1819_SEASON_ID"`
-	PremierLeague1718 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1718_SEASON_ID"`
-	PremierLeague1617 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1617_SEASON_ID"`
-	PremierLeague1516 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1516_SEASON_ID"`
-	PremierLeague1415 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1415_SEASON_ID"`
-	PremierLeague1314 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1314_SEASON_ID"`
-	PremierLeague1213 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1213_SEASON_ID"`
-	PremierLeague1112 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1112_SEASON_ID"`
-	PremierLeague1011 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1011_SEASON_ID"`
-	PremierLeague0910 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0910_SEASON_ID"`
-	PremierLeague0809 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0809_SEASON_ID"`
-	PremierLeague0708 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0708_SEASON_ID"`
-	PremierLeague0607 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0607_SEASON_ID"`
+	BaseURL   string `envconfig:"SOFASCOREAPI_BASE_URL"`
+	LeaguesID LeaguesIDs
+	LeagueEndpoints
+	MatchEndpoints
+	TeamEndpoints
+	PlayerEndpoints
 }
 
 type LeaguesIDs struct {
@@ -83,65 +46,28 @@ type LeaguesIDs struct {
 	PremierLeague int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_ID"`
 }
 
-type LaLigaSeasonsIDs struct {
-	LaLiga2526 int `envconfig:"SOFASCOREAPI_LALIGA_2526_SEASON_ID"`
-	Laliga2425 int `envconfig:"SOFASCOREAPI_LALIGA_2425_SEASON_ID"`
-	LaLiga2324 int `envconfig:"SOFASCOREAPI_LALIGA_2324_SEASON_ID"`
-	Laliga2223 int `envconfig:"SOFASCOREAPI_LALIGA_2223_SEASON_ID"`
-	Laliga2122 int `envconfig:"SOFASCOREAPI_LALIGA_2122_SEASON_ID"`
-	Laliga2021 int `envconfig:"SOFASCOREAPI_LALIGA_2021_SEASON_ID"`
-	Laliga1920 int `envconfig:"SOFASCOREAPI_LALIGA_1920_SEASON_ID"`
-	Laliga1819 int `envconfig:"SOFASCOREAPI_LALIGA_1819_SEASON_ID"`
-	Laliga1718 int `envconfig:"SOFASCOREAPI_LALIGA_1718_SEASON_ID"`
-	Laliga1617 int `envconfig:"SOFASCOREAPI_LALIGA_1617_SEASON_ID"`
-	Laliga1516 int `envconfig:"SOFASCOREAPI_LALIGA_1516_SEASON_ID"`
-	Laliga1415 int `envconfig:"SOFASCOREAPI_LALIGA_1415_SEASON_ID"`
-	Laliga1314 int `envconfig:"SOFASCOREAPI_LALIGA_1314_SEASON_ID"`
-	Laliga1213 int `envconfig:"SOFASCOREAPI_LALIGA_1213_SEASON_ID"`
-	Laliga1112 int `envconfig:"SOFASCOREAPI_LALIGA_1112_SEASON_ID"`
-	Laliga1011 int `envconfig:"SOFASCOREAPI_LALIGA_1011_SEASON_ID"`
+type LeagueEndpoints struct {
+	LeagueSeasonStandings string `envconfig:"SOFASCOREAPI_LEAGUE_SEASON_STANDINGS_ENDPOINT"`
+	LeagueRoundMatches    string `envconfig:"SOFASCOREAPI_LEAGUE_ROUND_MATCHES_ENDPOINT"`
 }
 
-type PremierLeagueSeasonIDs struct {
-	PremierLeague2526 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2526_SEASON_ID"`
-	PremierLeague2425 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2425_SEASON_ID"`
-	PremierLeague2324 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2324_SEASON_ID"`
-	PremierLeague2223 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2223_SEASON_ID"`
-	PremierLeague2122 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2122_SEASON_ID"`
-	PremierLeague2021 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_2021_SEASON_ID"`
-	PremierLeague1920 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1920_SEASON_ID"`
-	PremierLeague1819 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1819_SEASON_ID"`
-	PremierLeague1718 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1718_SEASON_ID"`
-	PremierLeague1617 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1617_SEASON_ID"`
-	PremierLeague1516 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1516_SEASON_ID"`
-	PremierLeague1415 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1415_SEASON_ID"`
-	PremierLeague1314 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1314_SEASON_ID"`
-	PremierLeague1213 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1213_SEASON_ID"`
-	PremierLeague1112 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1112_SEASON_ID"`
-	PremierLeague1011 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_1011_SEASON_ID"`
-	PremierLeague0910 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0910_SEASON_ID"`
-	PremierLeague0809 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0809_SEASON_ID"`
-	PremierLeague0708 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0708_SEASON_ID"`
-	PremierLeague0607 int `envconfig:"SOFASCOREAPI_PREMIERLEAGUE_0607_SEASON_ID"`
-}
-type LeagueEndpoints struct {
-	LeagueSeasonStandings string `envconfig:"SOFASCOREAPI_LEAGUE_SEASON_STANDINGS_ENDPOINT"` // /unique-tournament/%d/season/%d/standings/total
-	LeagueRoundMatches    string `envconfig:"SOFASCOREAPI_LEAGUE_ROUND_MATCHES_ENDPOINT"`    // /unique-tournament/%d/season/%d/events/round/%d
-}
 type MatchEndpoints struct {
-	MatchLineups    string `envconfig:"SOFASCOREAPI_MATCH_LINEUPS_ENDPOINT"`     // /event/%d/lineups
-	MatchH2hHistory string `envconfig:"SOFASCOREAPI_MATCH_H2H_HISTORY_ENDPOINT"` // /event/%d/h2h
+	MatchLineups     string `envconfig:"SOFASCOREAPI_MATCH_LINEUPS_ENDPOINT"`
+	MatchH2hHistory  string `envconfig:"SOFASCOREAPI_MATCH_H2H_HISTORY_ENDPOINT"`
+	MatchBestPlayers string `envconfig:"SOFASCOREAPI_MATCH_BEST_PLAYERS"`
 }
 
 type TeamEndpoints struct {
-	TopTeamsStats    string `envconfig:"SOFASCOREAPI_TOP_TEAMS_OVERALL_STATS_ENDPOINT"` // /unique-tournament/%d/season/%d/top-teams/overall
-	TeamOverallStats string `envconfig:"SOFASCOREAPI_TEAM_OVERALL_STATS_ENDPOINT"`      // /unique-tournament/%d/season/%d/team/%d/statistics/overall
-	TeamMatchStats   string `envconfig:"SOFASCOREAPI_TEAM_MATCH_STATS_ENDPOINT"`        // /event/%d/statistics
+	TopTeamsStats    string `envconfig:"SOFASCOREAPI_TOP_TEAMS_OVERALL_STATS_ENDPOINT"`
+	TeamOverallStats string `envconfig:"SOFASCOREAPI_TEAM_OVERALL_STATS_ENDPOINT"`
+	TeamMatchStats   string `envconfig:"SOFASCOREAPI_TEAM_MATCH_STATS_ENDPOINT"`
+	TeamPlayerStats  string `envconfig:"SOFASCOREAPI_TEAM_PLAYERS_STATS_ENDPOINT"`
 }
+
 type PlayerEndpoints struct {
-	PlayersStats       string `envconfig:"SOFASCOREAPI_TEAM_PLAYERS_STATS_ENDPOINT"`   // /team/%d/unique-tournament/%d/season/%d/top-players/overall
-	PlayerSeasonsStats string `envconfig:"SOFASCOREAPI_PLAYER_SEASONS_STATS_ENDPOINT"` // /player/%d/statistics
-	PlayerAttributes   string `envconfig:"SOFASCOREAPI_PLAYER_ATTRIBUTES_ENDPOINT"`    // /player/%d/attribute-overviews
+	PlayersStats       string `envconfig:"SOFASCOREAPI_TEAM_PLAYERS_STATS_ENDPOINT"`
+	PlayerSeasonsStats string `envconfig:"SOFASCOREAPI_PLAYER_SEASONS_STATS_ENDPOINT"`
+	PlayerAttributes   string `envconfig:"SOFASCOREAPI_PLAYER_ATTRIBUTES_ENDPOINT"`
 }
 
 func LoadConfig() *SofascoreConfig {
@@ -153,49 +79,119 @@ func LoadConfig() *SofascoreConfig {
 
 	config := &SofascoreConfig{}
 
-	// Parse FplApi config with validation
+	// Parse config with validation
 	if err := envconfig.Process("", config); err != nil {
-		log.Fatalf("sofascore-service: Unable to load FPL API config: %s", err)
+		log.Fatalf("sofascore-service: Unable to load API config: %s", err)
 	}
 
 	config.KafkaConfig = *kafka.LoadConfig()
 
+	// Parse all season IDs dynamically
+	config.Seasons = parseSeasonIDs()
+
 	return config
 }
 
-func (c *SofascoreConfig) DeleteKey(T any, key []string) (map[string]any, error) {
-	Bytes, err := json.Marshal(T)
-	if err != nil {
-		fmt.Println("Error marshaling struct:", err)
-		return nil, err
+// parseSeasonIDs extracts season IDs from environment variables
+// Pattern: SOFASCOREAPI_{LEAGUE}_{YEAR}_SEASON_ID
+func parseSeasonIDs() map[string]map[string]int {
+	seasons := make(map[string]map[string]int)
+
+	// Regex to match: SOFASCOREAPI_LALIGA_2425_SEASON_ID=61643
+	pattern := regexp.MustCompile(`^SOFASCOREAPI_([A-Z]+)_(\d{4})_SEASON_ID$`)
+
+	for _, env := range os.Environ() {
+		parts := strings.SplitN(env, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key, value := parts[0], parts[1]
+		matches := pattern.FindStringSubmatch(key)
+
+		if len(matches) == 3 {
+			league := strings.ToUpper(matches[1]) // LALIGA, PREMIERLEAGUE
+			year := matches[2]                    // 2425, 2324, etc.
+
+			seasonID, err := strconv.Atoi(value)
+			if err != nil {
+				log.Printf("Warning: Invalid season ID for %s: %v", key, err)
+				continue
+			}
+
+			if seasons[league] == nil {
+				seasons[league] = make(map[string]int)
+			}
+			seasons[league][year] = seasonID
+		}
 	}
 
-	var data map[string]interface{}
-	err = json.Unmarshal(Bytes, &data)
-	if err != nil {
-		fmt.Println("Error unmarshaling to map:", err)
-		return nil, err
-	}
-
-	for _, k := range key {
-		delete(data, k)
-	}
-
-	return data, nil
+	return seasons
 }
 
-func (c *SofascoreConfig) ProcessDelete(model any, toBeDeleted []string) ([]byte, error) {
-	newElement, err := c.DeleteKey(model, toBeDeleted)
-	if err != nil {
-		fmt.Errorf("failed to delete keys from newElement: %v", err)
-		return nil, err
+// GetSeasonID retrieves a season ID for a given league and year
+// Example: config.GetSeasonID("LALIGA", "2425") -> 61643
+func (c *SofascoreConfig) GetSeasonID(league, year string) (int, error) {
+	league = strings.ToUpper(league)
+
+	if leagueSeasons, ok := c.Seasons[league]; ok {
+		if seasonID, ok := leagueSeasons[year]; ok {
+			return seasonID, nil
+		}
+		return 0, fmt.Errorf("season %s not found for league %s", year, league)
+	}
+	return 0, fmt.Errorf("league %s not found", league)
+}
+
+// AllSeasons returns all season IDs for a given league, sorted by year (descending)
+func (c *SofascoreConfig) AllSeasons(league string) []int {
+	league = strings.ToUpper(league)
+
+	seasons, ok := c.Seasons[league]
+	if !ok {
+		return []int{}
 	}
 
-	elementJSON, err := json.Marshal(newElement)
-	if err != nil {
-		fmt.Errorf("failed to marshal elementJSON: %v", err)
-		return nil, err
+	// Extract and sort years
+	years := make([]string, 0, len(seasons))
+	for year := range seasons {
+		years = append(years, year)
 	}
 
-	return elementJSON, nil
+	// Sort descending (most recent first)
+	for i := 0; i < len(years)-1; i++ {
+		for j := i + 1; j < len(years); j++ {
+			if years[i] < years[j] {
+				years[i], years[j] = years[j], years[i]
+			}
+		}
+	}
+
+	// Build result
+	result := make([]int, len(years))
+	for i, year := range years {
+		result[i] = seasons[year]
+	}
+
+	return result
+}
+
+// MustGetSeasonID panics if season not found (use for critical paths)
+func (c *SofascoreConfig) MustGetSeasonID(league, year string) int {
+	id, err := c.GetSeasonID(league, year)
+	if err != nil {
+		log.Fatalf("Critical: %v", err)
+	}
+	return id
+}
+
+// Legacy helper methods for backward compatibility (if needed)
+func (c *SofascoreConfig) LaLigaSeasonID(year string) int {
+	id, _ := c.GetSeasonID("LALIGA", year)
+	return id
+}
+
+func (c *SofascoreConfig) PremierLeagueSeasonID(year string) int {
+	id, _ := c.GetSeasonID("PREMIERLEAGUE", year)
+	return id
 }
