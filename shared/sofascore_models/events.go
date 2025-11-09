@@ -22,8 +22,9 @@ type Tournament struct {
 }
 
 type UniqueTournament struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID       int            `json:"id,omitempty"`
+	Name     string         `json:"name,omitempty"`
+	Category LeagueCategory `json:"category,omitempty"`
 }
 
 type Season struct {

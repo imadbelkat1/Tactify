@@ -55,6 +55,7 @@ func TestTeamRepo(t *testing.T) {
 		&cfg.Kafka,
 		teamRepo, // teamRepo
 		nil,
+		nil,
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())

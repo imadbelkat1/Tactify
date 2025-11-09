@@ -20,6 +20,7 @@ type Handler struct {
 	consumers   map[string]*kafka.Consumer
 	teamRepo    *sofascore_repositories.TeamRepo
 	matchRepo   *sofascore_repositories.MatchRepo
+	leagueRepo  *sofascore_repositories.LeagueRepo
 }
 
 func NewHandler(
@@ -27,6 +28,7 @@ func NewHandler(
 	kafkaCfg *kafkaConfig.KafkaConfig,
 	teamRepo *sofascore_repositories.TeamRepo,
 	matchRepo *sofascore_repositories.MatchRepo,
+	leagueRepo *sofascore_repositories.LeagueRepo,
 ) *Handler {
 	h := &Handler{
 		config:      cfg,
@@ -34,6 +36,7 @@ func NewHandler(
 		consumers:   make(map[string]*kafka.Consumer),
 		teamRepo:    teamRepo,
 		matchRepo:   matchRepo,
+		leagueRepo:  leagueRepo,
 	}
 
 	if teamRepo != nil {
@@ -63,6 +66,14 @@ func NewHandler(
 			kafkaCfg.ConsumersGroupID.SofascoreLeagueRoundMatches,
 		)
 	}
+
+	if leagueRepo != nil {
+		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueIDs] = kafka.NewConsumer(
+			kafkaCfg,
+			kafkaCfg.TopicsName.SofascoreLeagueIDs,
+			kafkaCfg.ConsumersGroupID.SofascoreLeagueRoundMatches,
+		)
+	}
 	return h
 }
 
@@ -75,6 +86,7 @@ func (h *Handler) Route(ctx context.Context, topic string) {
 		h.kafkaConfig.TopicsName.SofascoreTeamOverallStats:   h.handleTeamStats,
 		h.kafkaConfig.TopicsName.SofascoreTeamMatchStats:     h.handleTeamMatchStat,
 		h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches: h.handleLeagueRoundMatches,
+		h.kafkaConfig.TopicsName.SofascoreLeagueIDs:          h.handleLeagueInfo,
 	}
 
 	if fn, ok := handlers[topic]; ok {
@@ -238,7 +250,9 @@ func (h *Handler) handleTeamMatchStat(ctx context.Context) {
 		1,
 		h.config.FlushInterval,
 		h.kafkaConfig.TopicsName.SofascoreTeamMatchStats,
-		func(t sofascore_models.MatchStatsMessage) string { return fmt.Sprintf("%d", time.Now().UnixNano()) },
+		func(t sofascore_models.MatchStatsMessage) string {
+			return fmt.Sprintf("%d", time.Now().UnixNano())
+		},
 		h.teamRepo.InsertTeamMatchStats,
 	)
 }
@@ -250,7 +264,23 @@ func (h *Handler) handleLeagueRoundMatches(ctx context.Context) {
 		1,
 		h.config.FlushInterval,
 		h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches,
-		func(t sofascore_models.Event) string { return fmt.Sprintf("%d", time.Now().UnixNano()) },
+		func(t sofascore_models.Event) string {
+			return fmt.Sprintf("%d", time.Now().UnixNano())
+		},
 		h.matchRepo.InsertRoundMatches,
+	)
+}
+
+func (h *Handler) handleLeagueInfo(ctx context.Context) {
+	batchProcess(
+		ctx,
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueIDs],
+		1,
+		h.config.FlushInterval,
+		h.kafkaConfig.TopicsName.SofascoreLeagueIDs,
+		func(l sofascore_models.LeagueUniqueTournaments) string {
+			return fmt.Sprintf("%d", time.Now().UnixNano())
+		},
+		h.leagueRepo.InsertLeagueInfo,
 	)
 }

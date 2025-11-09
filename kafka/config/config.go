@@ -44,6 +44,7 @@ type TopicsName struct {
 	FplLeagueH2hStanding     string `envconfig:"TOPICSNAME_FPL_LEAGUE_H2H_STANDING"`
 
 	// Sofascore Data Topics
+	SofascoreLeagueIDs          string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_IDS"`
 	SofascoreLeagueStandings    string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_STANDINGS"`
 	SofascoreLeagueRoundMatches string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_ROUND_MATCHES"`
 	SofascoreMatchLineups       string `envconfig:"TOPICSNAME_SOFASCORE_MATCH_LINEUPS"`

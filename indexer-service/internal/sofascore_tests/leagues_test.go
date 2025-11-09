@@ -15,10 +15,9 @@ import (
 	"github.com/imadbelkat1/indexer-service/internal/sofascore_handler"
 	"github.com/imadbelkat1/indexer-service/internal/sofascore_repositories"
 	"github.com/imadbelkat1/shared/sofascore_models"
-	_ "github.com/lib/pq"
 )
 
-func TestMatchRepo(t *testing.T) {
+func TestLeagueRepo(t *testing.T) {
 	// Load config
 	cfg := config.LoadConfig()
 
@@ -42,28 +41,26 @@ func TestMatchRepo(t *testing.T) {
 	}
 	log.Println("✅ Database connected")
 
-	// Initialize ONLY fixture repo
-	matchRepo := sofascore_repositories.NewMatchRepo(db,
-		&sofascore_models.Event{},
+	leagueRepo := sofascore_repositories.NewLeagueRepo(
+		db,
+		&sofascore_models.LeagueUniqueTournaments{},
 	)
 
-	// Initialize sofascore_handler with nil for other repos
 	h := sofascore_handler.NewHandler(
 		cfg,
 		&cfg.Kafka,
-		nil,       // teamRepo
-		matchRepo, //matchRepo
 		nil,
+		nil,
+		leagueRepo,
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	leagueRoundMatchesTopic := cfg.Kafka.TopicsName.SofascoreLeagueRoundMatches
+	leagueIDsTopic := cfg.Kafka.TopicsName.SofascoreLeagueIDs
+	h.Route(ctx, leagueIDsTopic)
 
-	h.Route(ctx, leagueRoundMatchesTopic)
-
-	log.Printf("✅ Sofascore Match indexer started, listening for %s...", leagueRoundMatchesTopic)
+	log.Printf("✅ Sofascore Match indexer started, listening for %s...", leagueIDsTopic)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
@@ -73,4 +70,5 @@ func TestMatchRepo(t *testing.T) {
 	cancel()
 	time.Sleep(2 * time.Second)
 	log.Println("✅ Stopped")
+
 }

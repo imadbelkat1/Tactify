@@ -47,8 +47,10 @@ type LeaguesIDs struct {
 }
 
 type LeagueEndpoints struct {
-	LeagueSeasonStandings string `envconfig:"SOFASCOREAPI_LEAGUE_SEASON_STANDINGS_ENDPOINT"`
-	LeagueRoundMatches    string `envconfig:"SOFASCOREAPI_LEAGUE_ROUND_MATCHES_ENDPOINT"`
+	LeagueCountriesIDs     string `envconfig:"SOFASCOREAPI_COUNTRIES_IDS_ENDPOINT"`
+	LeagueCountryLeagueIDs string `envconfig:"SOFASCOREAPI_COUNTRY_LEAGUES_ENDPOINT"`
+	LeagueSeasonStandings  string `envconfig:"SOFASCOREAPI_LEAGUE_SEASON_STANDINGS_ENDPOINT"`
+	LeagueRoundMatches     string `envconfig:"SOFASCOREAPI_LEAGUE_ROUND_MATCHES_ENDPOINT"`
 }
 
 type MatchEndpoints struct {
