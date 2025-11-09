@@ -1,5 +1,7 @@
 package fpl_models
 
+// ElementType represents player positions (GKP, DEF, MID, FWD) and squad rules
+
 type ElementType struct {
 	ID                int    `json:"id" db:"id"`
 	SingularName      string `json:"singular_name" db:"singular_name"`

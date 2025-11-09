@@ -1,5 +1,7 @@
 package sofascore_models
 
+// Top players ranking types
+
 // PlayerInfo Common embedded structs
 type PlayerInfo struct {
 	Player       Player `json:"player"`
@@ -10,15 +12,6 @@ type PlayerInfo struct {
 type BaseStats struct {
 	Type        string `json:"type"`
 	Appearances int    `json:"appearances"`
-}
-
-// Core types
-type Player struct {
-	ID           int    `json:"id"`
-	Name         string `json:"name"`
-	ShortName    string `json:"shortName"`
-	Position     string `json:"position"`
-	JerseyNumber string `json:"jerseyNumber"`
 }
 
 // TopPlayers struct

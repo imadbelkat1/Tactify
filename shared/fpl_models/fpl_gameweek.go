@@ -1,16 +1,37 @@
 package fpl_models
 
-type LiveEventMessage struct {
-	PlayerID int           `json:"player_id"`
-	Event    int           `json:"event"`
-	SeasonID int           `json:"season_id"`
-	Stats    LiveStats     `json:"stats"`
-	Explain  []ExplainItem `json:"explain"`
-	Modified bool          `json:"modified" db:"modified"`
+// Gameweek (Event) related types
+
+// Event represents a gameweek
+type Event struct {
+	ID                int    `json:"id"`
+	Name              string `json:"name"`
+	DeadlineTime      string `json:"deadline_time"`
+	AverageEntryScore int    `json:"average_entry_score"`
+	Finished          bool   `json:"finished"`
+	DataChecked       bool   `json:"data_checked"`
+	HighestScore      int    `json:"highest_score"`
+	IsPrevious        bool   `json:"is_previous"`
+	IsCurrent         bool   `json:"is_current"`
+	IsNext            bool   `json:"is_next"`
+	ChipPlays         []Chip `json:"chip_plays"`
+	MostSelected      int    `json:"most_selected"`
+	MostTransferredIn int    `json:"most_transferred_in"`
+	TopElement        int    `json:"top_element"`
+	TopElementInfo    struct {
+		ID     int `json:"id"`
+		Points int `json:"points"`
+	} `json:"top_element_info"`
+	TransfersThisGameweek int `json:"transfers_made"`
+	MostCaptained         int `json:"most_captained"`
+	MostViceCaptained     int `json:"most_vice_captained"`
 }
+
+// LiveEvent represents live gameweek data
 type LiveEvent struct {
 	Elements []LiveElement `json:"elements"`
 }
+
 type LiveElement struct {
 	ID       int           `json:"id" db:"player_id"`
 	Stats    LiveStats     `json:"stats"`

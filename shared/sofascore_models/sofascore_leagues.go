@@ -1,12 +1,9 @@
 package sofascore_models
 
+// League and tournament structures
+
 type LeagueCategories struct {
 	Categories []LeagueCategory `json:"categories"`
-}
-type LeagueCategory struct {
-	Name string `json:"name"`
-	ID   int    `json:"id"`
-	Flag string `json:"flag"`
 }
 
 type LeagueUniqueTournaments struct {

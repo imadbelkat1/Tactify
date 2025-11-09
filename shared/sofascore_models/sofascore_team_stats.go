@@ -1,11 +1,7 @@
 package sofascore_models
 
-type TeamOverallStatsMessage struct {
-	TeamID   int              `json:"team"`
-	LeagueID int              `json:"league"`
-	SeasonID int              `json:"season"`
-	Stats    TeamOverallStats `json:"statistics"`
-}
+// Team statistics - overall season stats
+
 type TeamOverallStats struct {
 	GoalsScored                            int     `json:"goalsScored"`
 	GoalsConceded                          int     `json:"goalsConceded"`

@@ -1,10 +1,7 @@
 package sofascore_models
 
-type StandingMessage struct {
-	SeasonID int `json:"seasonId"`
-	LeagueID int `json:"leagueId"`
-	Row      Row `json:"row"`
-}
+// League standings types
+
 type Standings struct {
 	Standings []Standing `json:"standings"`
 }
@@ -12,6 +9,7 @@ type Standings struct {
 type Standing struct {
 	Rows []Row `json:"rows"`
 }
+
 type Row struct {
 	Team          Team   `json:"team"`
 	Position      int    `json:"position"`

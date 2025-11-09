@@ -1,5 +1,39 @@
 package fpl_models
 
+// Game configuration and scoring rules
+
+// GameSettings contains general game configuration
+type GameSettings struct {
+	LeagueJoinPrivateMax         int           `json:"league_join_private_max"`
+	LeagueJoinPublicMax          int           `json:"league_join_public_max"`
+	LeagueMaxSizePublicClassic   int           `json:"league_max_size_public_classic"`
+	LeagueMaxSizePublicH2h       int           `json:"league_max_size_public_h2h"`
+	LeagueMaxSizePrivateH2h      int           `json:"league_max_size_private_h2h"`
+	LeagueMaxKoRounds            int           `json:"league_max_ko_rounds"`
+	LeaguePrefixPublic           string        `json:"league_prefix_public"`
+	LeaguePointsH2hWin           int           `json:"league_points_h2h_win"`
+	LeaguePointsH2hLose          int           `json:"league_points_h2h_lose"`
+	LeaguePointsH2hDraw          int           `json:"league_points_h2h_draw"`
+	LeagueKoFirstInsteadOfRandom bool          `json:"league_ko_first_instead_of_random"`
+	CupStartEventId              int           `json:"cup_start_event_id"`
+	CupStopEventId               int           `json:"cup_stop_event_id"`
+	CupQualifyingMethod          string        `json:"cup_qualifying_method"`
+	CupType                      string        `json:"cup_type"`
+	SquadSquadplay               int           `json:"squad_squadplay"`
+	SquadSquadsize               int           `json:"squad_squadsize"`
+	SquadTeamLimit               int           `json:"squad_team_limit"`
+	SquadTotalSpend              int           `json:"squad_total_spend"`
+	UICurrencyMultiplier         int           `json:"ui_currency_multiplier"`
+	UIUseSpecialShirts           bool          `json:"ui_use_special_shirts"`
+	UISpecialShirtExclusions     []interface{} `json:"ui_special_shirt_exclusions"`
+	StatsFormDays                int           `json:"stats_form_days"`
+	SysViceCaptainEnabled        bool          `json:"sys_vice_captain_enabled"`
+	TransfersCap                 int           `json:"transfers_cap"`
+	TransfersSellOnFee           float64       `json:"transfers_sell_on_fee"`
+	MaxBudget                    int           `json:"max_budget"`
+}
+
+// Scoring represents the point system for different actions
 type Scoring struct {
 	LongPlay                 int            `json:"long_play"`
 	ShortPlay                int            `json:"short_play"`

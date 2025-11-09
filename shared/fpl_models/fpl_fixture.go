@@ -1,6 +1,9 @@
 package fpl_models
 
+// Fixture (Match) types
+
 type Fixtures []Fixture
+
 type Fixture struct {
 	ID                   int           `json:"id" db:"fixture_id"`
 	Code                 int           `json:"code" db:"fixture_code"`
@@ -19,11 +22,6 @@ type Fixture struct {
 	TeamHDifficulty      int           `json:"team_h_difficulty" db:"team_h_difficulty"`
 	TeamADifficulty      int           `json:"team_a_difficulty" db:"team_a_difficulty"`
 	PulseID              int           `json:"pulse_id" db:"pulse_id"`
-}
-
-type FixtureMessage struct {
-	Fixture  Fixture `json:"fixture"`
-	SeasonID int     `json:"season_id"`
 }
 
 type FixtureStat struct {

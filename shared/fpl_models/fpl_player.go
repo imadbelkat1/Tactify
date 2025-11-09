@@ -1,8 +1,12 @@
 package fpl_models
 
-type PlayersBootstrap struct {
-	PlayerBootstrap []PlayerBootstrap `json:"elements"`
+// Player data types
+
+type Player struct {
+	PlayerHistory []PlayerHistory     `json:"history"`
+	PlayerPast    []PlayerPastHistory `json:"history_past"`
 }
+
 type PlayerBootstrap struct {
 	ID         int    `json:"id" db:"player_id"`
 	Code       int    `json:"code" db:"player_code"`
@@ -105,7 +109,6 @@ type PlayerBootstrap struct {
 	SelectedRankType      int `json:"selected_rank_type" db:"selected_rank_type"`
 }
 
-type PlayerBootstrapMessage struct {
-	Player   PlayerBootstrap `json:"player"`
-	SeasonID int             `json:"season_id"`
+type PlayersBootstrap struct {
+	PlayerBootstrap []PlayerBootstrap `json:"elements"`
 }
