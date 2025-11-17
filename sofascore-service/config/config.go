@@ -33,8 +33,9 @@ type TorConfig struct {
 }
 
 type SofascoreApi struct {
-	BaseURL   string `envconfig:"SOFASCOREAPI_BASE_URL"`
-	LeaguesID LeaguesIDs
+	BaseURL     string `envconfig:"SOFASCOREAPI_BASE_URL"`
+	CurrentYear string `envconfig:"CURRENT_YEAR"`
+	LeaguesID   LeaguesIDs
 	LeagueEndpoints
 	MatchEndpoints
 	TeamEndpoints
@@ -47,6 +48,7 @@ type LeaguesIDs struct {
 }
 
 type LeagueEndpoints struct {
+	LeagueSeasonsIDs       string `envconfig:"SOFASCOREAPI_LEAGUE_SEASONS_ENDPOINT"`
 	LeagueCountriesIDs     string `envconfig:"SOFASCOREAPI_COUNTRIES_IDS_ENDPOINT"`
 	LeagueCountryLeagueIDs string `envconfig:"SOFASCOREAPI_COUNTRY_LEAGUES_ENDPOINT"`
 	LeagueSeasonStandings  string `envconfig:"SOFASCOREAPI_LEAGUE_SEASON_STANDINGS_ENDPOINT"`
@@ -67,7 +69,7 @@ type TeamEndpoints struct {
 }
 
 type PlayerEndpoints struct {
-	PlayersStats       string `envconfig:"SOFASCOREAPI_TEAM_PLAYERS_STATS_ENDPOINT"`
+	PlayersStats       string `envconfig:"SOFASCOREAPI_PLAYER_INFO_ENDPOINT"`
 	PlayerSeasonsStats string `envconfig:"SOFASCOREAPI_PLAYER_SEASONS_STATS_ENDPOINT"`
 	PlayerAttributes   string `envconfig:"SOFASCOREAPI_PLAYER_ATTRIBUTES_ENDPOINT"`
 }

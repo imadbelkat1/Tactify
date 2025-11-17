@@ -14,6 +14,8 @@ type PlayersService struct {
 	Producer *kafka.Producer
 }
 
+// get unique tour id -> fetch its standing -> get team ids from it -> fetch players
+
 func (p *PlayersService) GetPlayerInfo(ctx context.Context, playerId int) error {
 	return nil
 }

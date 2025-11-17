@@ -45,6 +45,7 @@ type TopicsName struct {
 
 	// Sofascore Data Topics
 	SofascoreLeagueIDs          string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_IDS"`
+	SofascoreLeagueSeasons      string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_SEASONS_IDS"`
 	SofascoreLeagueStandings    string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_STANDINGS"`
 	SofascoreLeagueRoundMatches string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_ROUND_MATCHES"`
 	SofascoreMatchLineups       string `envconfig:"TOPICSNAME_SOFASCORE_MATCH_LINEUPS"`

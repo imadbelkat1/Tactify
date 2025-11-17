@@ -57,9 +57,15 @@ type UniqueTournament struct {
 }
 
 type Season struct {
-	ID   int    `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-	Year string `json:"year,omitempty"`
+	ID        int    `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Year      string `json:"year,omitempty"`
+	IsCurrent bool   `json:"is_current"`
+}
+
+type Seasons struct {
+	LeagueID int      `json:"LeagueID,omitempty"`
+	Seasons  []Season `json:"seasons,omitempty"`
 }
 
 type LeagueCategory struct {

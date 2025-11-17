@@ -58,9 +58,13 @@ func TestLeagueRepo(t *testing.T) {
 	defer cancel()
 
 	leagueIDsTopic := cfg.Kafka.TopicsName.SofascoreLeagueIDs
+	leagueSeasonsTopic := cfg.Kafka.TopicsName.SofascoreLeagueSeasons
+
 	h.Route(ctx, leagueIDsTopic)
+	h.Route(ctx, leagueSeasonsTopic)
 
 	log.Printf("✅ Sofascore Match indexer started, listening for %s...", leagueIDsTopic)
+	log.Printf("✅ Sofascore Match indexer started, listening for %s...", leagueSeasonsTopic)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
