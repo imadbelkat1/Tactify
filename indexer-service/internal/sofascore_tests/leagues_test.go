@@ -57,8 +57,8 @@ func TestLeagueRepo(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	leagueIDsTopic := cfg.Kafka.TopicsName.SofascoreLeagueIDs
-	leagueSeasonsTopic := cfg.Kafka.TopicsName.SofascoreLeagueSeasons
+	leagueIDsTopic := cfg.Kafka.TopicsName.SofascoreLeagueIDs.Name
+	leagueSeasonsTopic := cfg.Kafka.TopicsName.SofascoreLeagueSeasons.Name
 
 	h.Route(ctx, leagueIDsTopic)
 	h.Route(ctx, leagueSeasonsTopic)

@@ -10,11 +10,8 @@ require (
 )
 
 require (
-	github.com/klauspost/compress v1.15.9 // indirect
-	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/klauspost/compress v1.18.2 // indirect
+	github.com/pierrec/lz4/v4 v4.1.23 // indirect
 	github.com/segmentio/kafka-go v0.4.49 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/imadeddine-belkat/kafka => ../kafka
-
-replace github.com/imadeddine-belkat/shared => ../shared

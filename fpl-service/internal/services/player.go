@@ -40,7 +40,7 @@ func (s *PlayerApiService) UpdatePlayers(ctx context.Context) error {
 
 // publishPlayersBootstrap publishes only the bootstrap/stats data
 func (s *PlayerApiService) publishPlayersBootstrap(ctx context.Context, bootstrap *fpl_models.PlayersBootstrap) error {
-	playersBootstrapTopic := s.Config.KafkaConfig.TopicsName.FplPlayersBootstrap
+	playersBootstrapTopic := s.Config.KafkaConfig.TopicsName.FplPlayersBootstrap.Name
 
 	log.Printf("Publishing %d player bootstrap records...", len(bootstrap.PlayerBootstrap))
 
@@ -66,8 +66,8 @@ func (s *PlayerApiService) publishPlayersBootstrap(ctx context.Context, bootstra
 
 // publishPlayersHistory fetches and publishes match history and past seasons
 func (s *PlayerApiService) publishPlayersHistory(ctx context.Context, bootstrap *fpl_models.PlayersBootstrap) error {
-	playersMatchStatsTopic := s.Config.KafkaConfig.TopicsName.FplPlayerMatchStats
-	playersPastHistoryTopic := s.Config.KafkaConfig.TopicsName.FplPlayerHistoryStats
+	playersMatchStatsTopic := s.Config.KafkaConfig.TopicsName.FplPlayerMatchStats.Name
+	playersPastHistoryTopic := s.Config.KafkaConfig.TopicsName.FplPlayerHistoryStats.Name
 
 	log.Printf("Fetching and publishing history for %d players...", len(bootstrap.PlayerBootstrap))
 

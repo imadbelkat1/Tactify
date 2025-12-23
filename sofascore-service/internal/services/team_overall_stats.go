@@ -32,7 +32,7 @@ func (o *TeamOverallStatsService) GetTeamOverallStats(ctx context.Context, teamI
 }
 
 func (o *TeamOverallStatsService) UpdateTeamOverallStats(ctx context.Context, teamId, leagueId, seasonId int) error {
-	teamOverallStatsTopic := o.Config.KafkaConfig.TopicsName.SofascoreTeamOverallStats
+	teamOverallStatsTopic := o.Config.KafkaConfig.TopicsName.SofascoreTeamOverallStats.Name
 
 	teamOverallStats, err := o.GetTeamOverallStats(ctx, teamId, leagueId, seasonId)
 	if err != nil {

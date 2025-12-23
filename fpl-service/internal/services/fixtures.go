@@ -52,7 +52,7 @@ func (s *FixturesApiService) UpdateFixtures(ctx context.Context) error {
 }
 
 func (s *FixturesApiService) publishFixtures(ctx context.Context, fixtures *fpl_models.Fixtures) error {
-	fixturesTopic := s.Config.KafkaConfig.TopicsName.FplFixtures
+	fixturesTopic := s.Config.KafkaConfig.TopicsName.FplFixtures.Name
 	//fixtureDetailsTopic := s.Config.KafkaConfig.TopicsName.FplFixtureDetails
 
 	jobs := make(chan fpl_models.Fixture, len(*fixtures))

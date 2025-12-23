@@ -34,7 +34,7 @@ func (s *TeamMatchStatsService) GetTeamMatchStats(ctx context.Context, matchId i
 }
 
 func (s *TeamMatchStatsService) UpdateLeagueMatchStats(ctx context.Context, seasonId int, leagueId int, round int) error {
-	teamMatchStatsTopic := s.Config.KafkaConfig.TopicsName.SofascoreTeamMatchStats
+	teamMatchStatsTopic := s.Config.KafkaConfig.TopicsName.SofascoreTeamMatchStats.Name
 
 	log.Printf("Starting UpdateLeagueMatchStats for league=%d, season=%d, round=%d", leagueId, seasonId, round)
 

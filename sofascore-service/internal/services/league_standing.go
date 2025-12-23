@@ -45,7 +45,7 @@ func (t *LeagueStandingService) GetLeagueStanding(ctx context.Context, seasonId,
 }
 
 func (t *LeagueStandingService) PublishLeagueStanding(ctx context.Context, seasonId int, leagueId int, standing *sofascore_models.Standings) error {
-	leagueStandingTopic := t.Config.KafkaConfig.TopicsName.SofascoreLeagueStandings
+	leagueStandingTopic := t.Config.KafkaConfig.TopicsName.SofascoreLeagueStandings.Name
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(10)

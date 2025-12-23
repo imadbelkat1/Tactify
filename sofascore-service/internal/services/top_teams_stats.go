@@ -95,7 +95,7 @@ func (s *TopTeamsStatsService) UpdateLeagueTopTeamsStats(ctx context.Context, se
 		return fmt.Errorf("getting top teams stats: %w", err)
 	}
 
-	topic := s.Config.KafkaConfig.TopicsName.SofascoreTopTeamsStats
+	topic := s.Config.KafkaConfig.TopicsName.SofascoreTopTeamsStats.Name
 	var wg sync.WaitGroup
 
 	wg.Add(23)

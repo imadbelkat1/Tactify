@@ -59,7 +59,7 @@ func TestMatchRepo(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	leagueRoundMatchesTopic := cfg.Kafka.TopicsName.SofascoreLeagueRoundMatches
+	leagueRoundMatchesTopic := cfg.Kafka.TopicsName.SofascoreLeagueRoundMatches.Name
 
 	h.Route(ctx, leagueRoundMatchesTopic)
 

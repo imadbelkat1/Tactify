@@ -42,7 +42,7 @@ func (s *TeamApiService) UpdateTeams(ctx context.Context) error {
 }
 
 func (s *TeamApiService) publishTeams(ctx context.Context, teams []fpl_models.Team) error {
-	teamsTopic := s.Config.KafkaConfig.TopicsName.FplTeams
+	teamsTopic := s.Config.KafkaConfig.TopicsName.FplTeams.Name
 
 	jobs := make(chan fpl_models.Team, len(teams))
 

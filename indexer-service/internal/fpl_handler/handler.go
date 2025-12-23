@@ -43,75 +43,75 @@ func NewHandler(
 
 	// Pre-create consumers only for non-nil repositories
 	if fixtureRepo != nil {
-		h.consumers[kafkaConfig.TopicsName.FplFixtures] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplFixtures.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplFixtures,
+			kafkaConfig.TopicsName.FplFixtures.Name,
 			kafkaConfig.ConsumersGroupID.FplFixtures,
 		)
 	}
 
 	if teamRepo != nil {
-		h.consumers[kafkaConfig.TopicsName.FplTeams] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplTeams.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplTeams,
+			kafkaConfig.TopicsName.FplTeams.Name,
 			kafkaConfig.ConsumersGroupID.FplTeams,
 		)
 	}
 
 	if playerRepo != nil {
-		h.consumers[kafkaConfig.TopicsName.FplPlayersBootstrap] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplPlayersBootstrap.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplPlayersBootstrap,
+			kafkaConfig.TopicsName.FplPlayersBootstrap.Name,
 			kafkaConfig.ConsumersGroupID.FplPlayers,
 		)
 
-		h.consumers[kafkaConfig.TopicsName.FplPlayersStats] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplPlayersStats.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplPlayersStats,
+			kafkaConfig.TopicsName.FplPlayersStats.Name,
 			kafkaConfig.ConsumersGroupID.FplPlayersStats,
 		)
 
-		h.consumers[kafkaConfig.TopicsName.FplPlayerMatchStats] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplPlayerMatchStats.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplPlayerMatchStats,
+			kafkaConfig.TopicsName.FplPlayerMatchStats.Name,
 			kafkaConfig.ConsumersGroupID.FplPlayersStats,
 		)
 
-		h.consumers[kafkaConfig.TopicsName.FplPlayerHistoryStats] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplPlayerHistoryStats.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplPlayerHistoryStats,
+			kafkaConfig.TopicsName.FplPlayerHistoryStats.Name,
 			kafkaConfig.ConsumersGroupID.FplPlayersStats,
 		)
 
-		h.consumers[kafkaConfig.TopicsName.FplLiveEvent] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplLiveEvent.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplLiveEvent,
+			kafkaConfig.TopicsName.FplLiveEvent.Name,
 			kafkaConfig.ConsumersGroupID.FplLive,
 		)
 	}
 
 	if managerRepo != nil {
-		h.consumers[kafkaConfig.TopicsName.FplEntry] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplEntry.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplEntry,
+			kafkaConfig.TopicsName.FplEntry.Name,
 			kafkaConfig.ConsumersGroupID.FplEntries,
 		)
 
-		h.consumers[kafkaConfig.TopicsName.FplEntryPicks] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplEntryPicks.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplEntryPicks,
+			kafkaConfig.TopicsName.FplEntryPicks.Name,
 			kafkaConfig.ConsumersGroupID.FplEntriesPicks,
 		)
 
-		h.consumers[kafkaConfig.TopicsName.FplEntryTransfers] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplEntryTransfers.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplEntryTransfers,
+			kafkaConfig.TopicsName.FplEntryTransfers.Name,
 			kafkaConfig.ConsumersGroupID.FplEntriesTransfers,
 		)
 
-		h.consumers[kafkaConfig.TopicsName.FplEntryHistory] = kafka.NewConsumer(
+		h.consumers[kafkaConfig.TopicsName.FplEntryHistory.Name] = kafka.NewConsumer(
 			kafkaConfig,
-			kafkaConfig.TopicsName.FplEntryHistory,
+			kafkaConfig.TopicsName.FplEntryHistory.Name,
 			kafkaConfig.ConsumersGroupID.FplEntriesHistory,
 		)
 	}
@@ -123,17 +123,17 @@ type HandlerFunc func(ctx context.Context)
 
 func (h *Handler) Route(ctx context.Context, topic string) {
 	handlers := map[string]HandlerFunc{
-		h.kafkaConfig.TopicsName.FplFixtures:           h.handleFixtures,
-		h.kafkaConfig.TopicsName.FplTeams:              h.handleTeams,
-		h.kafkaConfig.TopicsName.FplPlayersBootstrap:   h.handlePlayerBootstrap,
-		h.kafkaConfig.TopicsName.FplPlayersStats:       h.handlePlayerStats,
-		h.kafkaConfig.TopicsName.FplPlayerMatchStats:   h.handlePlayerMatchStats,
-		h.kafkaConfig.TopicsName.FplPlayerHistoryStats: h.handlePlayerPastHistory,
-		h.kafkaConfig.TopicsName.FplLiveEvent:          h.handlePlayerExplain,
-		h.kafkaConfig.TopicsName.FplEntry:              h.handleManagers,
-		h.kafkaConfig.TopicsName.FplEntryPicks:         h.handleManagerPicks,
-		h.kafkaConfig.TopicsName.FplEntryTransfers:     h.handleManagerTransfers,
-		h.kafkaConfig.TopicsName.FplEntryHistory:       h.handleManagerHistory,
+		h.kafkaConfig.TopicsName.FplFixtures.Name:           h.handleFixtures,
+		h.kafkaConfig.TopicsName.FplTeams.Name:              h.handleTeams,
+		h.kafkaConfig.TopicsName.FplPlayersBootstrap.Name:   h.handlePlayerBootstrap,
+		h.kafkaConfig.TopicsName.FplPlayersStats.Name:       h.handlePlayerStats,
+		h.kafkaConfig.TopicsName.FplPlayerMatchStats.Name:   h.handlePlayerMatchStats,
+		h.kafkaConfig.TopicsName.FplPlayerHistoryStats.Name: h.handlePlayerPastHistory,
+		h.kafkaConfig.TopicsName.FplLiveEvent.Name:          h.handlePlayerExplain,
+		h.kafkaConfig.TopicsName.FplEntry.Name:              h.handleManagers,
+		h.kafkaConfig.TopicsName.FplEntryPicks.Name:         h.handleManagerPicks,
+		h.kafkaConfig.TopicsName.FplEntryTransfers.Name:     h.handleManagerTransfers,
+		h.kafkaConfig.TopicsName.FplEntryHistory.Name:       h.handleManagerHistory,
 	}
 
 	if fn, ok := handlers[topic]; ok {
@@ -261,10 +261,10 @@ func batchProcessWithSlice[T any, K comparable](
 func (h *Handler) handleFixtures(ctx context.Context) {
 	batchProcessWithSlice(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplFixtures],
+		h.consumers[h.kafkaConfig.TopicsName.FplFixtures.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplFixtures,
+		h.kafkaConfig.TopicsName.FplFixtures.Name,
 		func(f fpl_models.FixtureMessage) int { return f.Fixture.ID },
 		h.fixtureRepo.InsertFixtures,
 	)
@@ -273,17 +273,17 @@ func (h *Handler) handleFixtures(ctx context.Context) {
 func (h *Handler) handleTeams(ctx context.Context) {
 	batchProcessWithSlice(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplTeams],
+		h.consumers[h.kafkaConfig.TopicsName.FplTeams.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplTeams,
+		h.kafkaConfig.TopicsName.FplTeams.Name,
 		func(t fpl_models.TeamMessage) int { return t.Team.ID },
 		h.teamRepo.InsertTeams,
 	)
 }
 
 func (h *Handler) handlePlayerBootstrap(ctx context.Context) {
-	consumer := h.consumers[h.kafkaConfig.TopicsName.FplPlayersBootstrap]
+	consumer := h.consumers[h.kafkaConfig.TopicsName.FplPlayersBootstrap.Name]
 	messages, errors := consumer.Subscribe(ctx)
 	batch := make(map[int]fpl_models.PlayerBootstrapMessage)
 
@@ -365,10 +365,10 @@ func (h *Handler) handlePlayerBootstrap(ctx context.Context) {
 func (h *Handler) handlePlayerStats(ctx context.Context) {
 	batchProcessWithSlice(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplPlayersStats],
+		h.consumers[h.kafkaConfig.TopicsName.FplPlayersStats.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplPlayersStats,
+		h.kafkaConfig.TopicsName.FplPlayersStats.Name,
 		func(p fpl_models.PlayerBootstrapMessage) int { return p.Player.ID },
 		h.playerRepo.InsertPlayerBootstrapComplete,
 	)
@@ -377,10 +377,10 @@ func (h *Handler) handlePlayerStats(ctx context.Context) {
 func (h *Handler) handlePlayerMatchStats(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplPlayerMatchStats],
+		h.consumers[h.kafkaConfig.TopicsName.FplPlayerMatchStats.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplPlayerMatchStats,
+		h.kafkaConfig.TopicsName.FplPlayerMatchStats.Name,
 		func(msg fpl_models.PlayerHistoryMessage) int { return msg.PlayerID },
 		func(histMsg fpl_models.PlayerHistoryMessage) error {
 			return h.playerRepo.InsertPlayerGameweekStats(histMsg)
@@ -392,10 +392,10 @@ func (h *Handler) handlePlayerPastHistory(ctx context.Context) {
 
 	batchProcessWithSlice(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplPlayerHistoryStats],
+		h.consumers[h.kafkaConfig.TopicsName.FplPlayerHistoryStats.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplPlayerHistoryStats,
+		h.kafkaConfig.TopicsName.FplPlayerHistoryStats.Name,
 		func(p fpl_models.PlayerPastHistoryMessage) int { return p.PlayerCode },
 		h.playerRepo.InsertPlayerPastSeasons,
 	)
@@ -404,10 +404,10 @@ func (h *Handler) handlePlayerPastHistory(ctx context.Context) {
 func (h *Handler) handlePlayerExplain(ctx context.Context) {
 	batchProcessWithSlice(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplLiveEvent],
+		h.consumers[h.kafkaConfig.TopicsName.FplLiveEvent.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplLiveEvent,
+		h.kafkaConfig.TopicsName.FplLiveEvent.Name,
 		func(p fpl_models.LiveEventMessage) int { return p.PlayerID },
 		h.playerRepo.InsertPlayerGameweekExplain,
 	)
@@ -416,10 +416,10 @@ func (h *Handler) handlePlayerExplain(ctx context.Context) {
 func (h *Handler) handleManagers(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplEntry],
+		h.consumers[h.kafkaConfig.TopicsName.FplEntry.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplEntry,
+		h.kafkaConfig.TopicsName.FplEntry.Name,
 		func(e fpl_models.EntryMessage) int { return e.Entry.ID },
 		func(e fpl_models.EntryMessage) error {
 			return h.managerRepo.InsertManagerInfo(&e)
@@ -430,10 +430,10 @@ func (h *Handler) handleManagers(ctx context.Context) {
 func (h *Handler) handleManagerPicks(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplEntryPicks],
+		h.consumers[h.kafkaConfig.TopicsName.FplEntryPicks.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplEntryPicks,
+		h.kafkaConfig.TopicsName.FplEntryPicks.Name,
 		func(p fpl_models.EntryEventPicksMessage) int { return p.EntryId },
 		func(p fpl_models.EntryEventPicksMessage) error {
 			return h.managerRepo.InsertManagerPicks(&p)
@@ -444,10 +444,10 @@ func (h *Handler) handleManagerPicks(ctx context.Context) {
 func (h *Handler) handleManagerTransfers(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplEntryTransfers],
+		h.consumers[h.kafkaConfig.TopicsName.FplEntryTransfers.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplEntryTransfers,
+		h.kafkaConfig.TopicsName.FplEntryTransfers.Name,
 		func(t fpl_models.EntryTransfersMessage) int { return t.EntryId },
 		func(t fpl_models.EntryTransfersMessage) error {
 			return h.managerRepo.InsertManagerTransfers(&t)
@@ -458,10 +458,10 @@ func (h *Handler) handleManagerTransfers(ctx context.Context) {
 func (h *Handler) handleManagerHistory(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.FplEntryHistory],
+		h.consumers[h.kafkaConfig.TopicsName.FplEntryHistory.Name],
 		h.config.BatchSize,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.FplEntryHistory,
+		h.kafkaConfig.TopicsName.FplEntryHistory.Name,
 		func(hi fpl_models.EntryHistoryMessage) int { return hi.EntryId },
 		func(hi fpl_models.EntryHistoryMessage) error {
 			return h.managerRepo.InsertManagerFullHistory(&hi)

@@ -50,7 +50,7 @@ func (e *EventsService) UpdateRoundMatches(ctx context.Context, seasonId, league
 }
 
 func (e *EventsService) publishRoundMatches(ctx context.Context, event *sofascore_models.Event) error {
-	roundMatchesTopic := e.Config.KafkaConfig.TopicsName.SofascoreLeagueRoundMatches
+	roundMatchesTopic := e.Config.KafkaConfig.TopicsName.SofascoreLeagueRoundMatches.Name
 
 	value, err := json.Marshal(&event)
 	if err != nil {

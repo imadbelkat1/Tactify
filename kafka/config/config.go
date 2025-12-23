@@ -2,11 +2,13 @@ package config
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"gopkg.in/yaml.v3"
 )
 
 type KafkaConfig struct {
@@ -21,42 +23,52 @@ type KafkaConfig struct {
 	KafkaBufferMemory      int    `envconfig:"KAFKA_BUFFER_MEMORY"`
 	KafkaPartitions        int    `envconfig:"KAFKA_PARTITIONS"`
 	KafkaReplication       int    `envconfig:"KAFKA_REPLICATION"`
-	TopicsName             TopicsName
+	TopicsName             Topics
 	TopicsRetention        TopicsRetention
 	ConsumersGroupID       ConsumersGroupID
 }
 
-type TopicsName struct {
-	// FPL Core Data TopicsRetention
-	FplPlayersBootstrap      string `envconfig:"TOPICSNAME_FPL_PLAYERS_BOOTSTRAP"`
-	FplPlayersStats          string `envconfig:"TOPICSNAME_FPL_PLAYERS_STATS"`
-	FplPlayerMatchStats      string `envconfig:"TOPICSNAME_FPL_PLAYER_MATCH_HISTORY_STATS"`
-	FplPlayerHistoryStats    string `envconfig:"TOPICSNAME_FPL_PLAYER_PAST_HISTORY_STATS"`
-	FplTeams                 string `envconfig:"TOPICSNAME_FPL_TEAMS"`
-	FplFixtures              string `envconfig:"TOPICSNAME_FPL_FIXTURES"`
-	FplFixtureDetails        string `envconfig:"TOPICSNAME_FPL_FIXTURE_DETAILS"`
-	FplLiveEvent             string `envconfig:"TOPICSNAME_FPL_LIVE_EVENT"`
-	FplEntry                 string `envconfig:"TOPICSNAME_FPL_ENTRY"`
-	FplEntryHistory          string `envconfig:"TOPICSNAME_FPL_ENTRY_HISTORY"`
-	FplEntryTransfers        string `envconfig:"TOPICSNAME_FPL_ENTRY_TRANSFERS"`
-	FplEntryPicks            string `envconfig:"TOPICSNAME_FPL_ENTRY_PICKS"`
-	FplLeagueClassicStanding string `envconfig:"TOPICSNAME_FPL_LEAGUE_CLASSIC_STANDING"`
-	FplLeagueH2hStanding     string `envconfig:"TOPICSNAME_FPL_LEAGUE_H2H_STANDING"`
+type TopicsConfig struct {
+	Kafka struct {
+		Topics Topics `yaml:"topics"`
+	} `yaml:"kafka"`
+}
+type Topic struct {
+	Name       string `yaml:"name"`
+	Partitions int    `yaml:"partitions"`
+}
 
-	// Sofascore Data Topics
-	SofascoreLeagueIDs          string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_IDS"`
-	SofascoreLeagueSeasons      string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_SEASONS_IDS"`
-	SofascoreLeagueStandings    string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_STANDINGS"`
-	SofascoreLeagueRoundMatches string `envconfig:"TOPICSNAME_SOFASCORE_LEAGUE_ROUND_MATCHES"`
-	SofascoreMatchLineups       string `envconfig:"TOPICSNAME_SOFASCORE_MATCH_LINEUPS"`
-	SofascoreMatchH2hHistory    string `envconfig:"TOPICSNAME_SOFASCORE_MATCH_H2H_HISTORY"`
-	SofascoreTopTeamsStats      string `envconfig:"TOPICSNAME_SOFASCORE_TOP_TEAMS_STATS"`
-	SofascoreTeamOverallStats   string `envconfig:"TOPICSNAME_SOFASCORE_TEAM_OVERALL_STATS"`
-	SofascoreTeamMatchStats     string `envconfig:"TOPICSNAME_SOFASCORE_TEAM_MATCH_STATS"`
-	SofascorePlayerTeamStats    string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_TEAM_STATS"`
-	SofascorePlayerSeasonsStats string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_SEASONS_STATS"`
-	SofascorePlayerAttributes   string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_ATTRIBUTES"`
-	SofascorePlayerMatchStats   string `envconfig:"TOPICSNAME_SOFASCORE_PLAYER_MATCH_STATS"`
+type Topics struct {
+	// FPL Core Data TopicsRetention
+	FplPlayersBootstrap      Topic `yaml:"fpl_players_bootstrap"`
+	FplPlayersStats          Topic `yaml:"fpl_players_stats"`
+	FplPlayerMatchStats      Topic `yaml:"fpl_player_match_history_stats"`
+	FplPlayerHistoryStats    Topic `yaml:"fpl_player_past_history_stats"`
+	FplTeams                 Topic `yaml:"fpl_teams"`
+	FplFixtures              Topic `yaml:"fpl_fixtures"`
+	FplFixtureDetails        Topic `yaml:"fpl_fixture_details"`
+	FplLiveEvent             Topic `yaml:"fpl_live_event"`
+	FplEntry                 Topic `yaml:"fpl_entry"`
+	FplEntryHistory          Topic `yaml:"fpl_entry_history"`
+	FplEntryTransfers        Topic `yaml:"fpl_entry_transfers"`
+	FplEntryPicks            Topic `yaml:"fpl_entry_picks"`
+	FplLeagueClassicStanding Topic `yaml:"fpl_league_classic_standing"`
+	FplLeagueH2hStanding     Topic `yaml:"fpl_league_h2h_standing"`
+
+	// Sofascore
+	SofascoreLeagueIDs          Topic `yaml:"sofascore_league_ids"`
+	SofascoreLeagueSeasons      Topic `yaml:"sofascore_league_seasons"`
+	SofascoreLeagueStandings    Topic `yaml:"sofascore_league_standings"`
+	SofascoreLeagueRoundMatches Topic `yaml:"sofascore_league_round_matches"`
+	SofascoreMatchLineups       Topic `yaml:"sofascore_match_lineups"`
+	SofascoreMatchH2hHistory    Topic `yaml:"sofascore_match_h2h_history"`
+	SofascoreTopTeamsStats      Topic `yaml:"sofascore_top_teams_stats"`
+	SofascoreTeamOverallStats   Topic `yaml:"sofascore_team_overall_stats"`
+	SofascoreTeamMatchStats     Topic `yaml:"sofascore_team_match_stats"`
+	SofascorePlayerTeamStats    Topic `yaml:"sofascore_player_team_stats"`
+	SofascorePlayerSeasonsStats Topic `yaml:"sofascore_player_seasons_stats"`
+	SofascorePlayerAttributes   Topic `yaml:"sofascore_player_attributes"`
+	SofascorePlayerMatchStats   Topic `yaml:"sofascore_player_match_stats"`
 }
 type TopicsRetention struct {
 	FplPlayers               string `envconfig:"TOPICSRETENTION_FPL_PLAYERS"`
@@ -100,20 +112,35 @@ type ConsumersGroupID struct {
 
 func LoadConfig() *KafkaConfig {
 	_, filename, _, _ := runtime.Caller(0)
-	ConfigDir := filepath.Dir(filename)
-	RootDir := filepath.Dir(ConfigDir)
 
-	// Load .env file
-	_ = godotenv.Load(filepath.Join(RootDir, ".env"))
-	_ = godotenv.Load(filepath.Join(RootDir, "..", ".env"))
-	_ = godotenv.Load(filepath.Join(RootDir, "..", "..", ".env"))
+	// kafka/config/
+	configDir := filepath.Dir(filename)
+	// project root (kafka/)
+	rootDir := filepath.Dir(configDir)
 
-	config := &KafkaConfig{}
+	// Load .env
+	_ = godotenv.Load(filepath.Join(rootDir, ".env"))
+	_ = godotenv.Load(filepath.Join(rootDir, "..", ".env"))
 
-	// Parse main Kafka config
-	if err := envconfig.Process("", config); err != nil {
-		log.Fatalf("kafka: Unable to load Kafka config: %s", err)
+	cfg := &KafkaConfig{}
+
+	if err := envconfig.Process("", cfg); err != nil {
+		log.Fatalf("kafka: unable to load env config: %v", err)
 	}
 
-	return config
+	// Load topics.yaml
+	topicsPath := filepath.Join(rootDir, "topics.yaml")
+
+	data, err := os.ReadFile(topicsPath)
+	if err != nil {
+		log.Fatalf("kafka: unable to read topics.yaml at %s: %v", topicsPath, err)
+	}
+
+	var topicsCfg TopicsConfig
+	if err := yaml.Unmarshal(data, &topicsCfg); err != nil {
+		log.Fatalf("kafka: unable to parse topics.yaml: %v", err)
+	}
+
+	cfg.TopicsName = topicsCfg.Kafka.Topics
+	return cfg
 }

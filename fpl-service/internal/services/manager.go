@@ -48,10 +48,10 @@ func (s *ManagersApiService) UpdateManager(ctx context.Context, managerId int, e
 }
 
 func (s *ManagersApiService) publishManager(ctx context.Context, info *fpl_models.EntryMessage, picks *fpl_models.EntryEventPicksMessage, history *fpl_models.EntryHistoryMessage, transfers *fpl_models.EntryTransfersMessage) error {
-	entryTopic := s.Config.KafkaConfig.TopicsName.FplEntry
-	entryEventTopic := s.Config.KafkaConfig.TopicsName.FplEntryPicks
-	entryHistoryTopic := s.Config.KafkaConfig.TopicsName.FplEntryHistory
-	entryTransfersTopic := s.Config.KafkaConfig.TopicsName.FplEntryTransfers
+	entryTopic := s.Config.KafkaConfig.TopicsName.FplEntry.Name
+	entryEventTopic := s.Config.KafkaConfig.TopicsName.FplEntryPicks.Name
+	entryHistoryTopic := s.Config.KafkaConfig.TopicsName.FplEntryHistory.Name
+	entryTransfersTopic := s.Config.KafkaConfig.TopicsName.FplEntryTransfers.Name
 
 	var publishWg sync.WaitGroup
 	publishWg.Add(1)

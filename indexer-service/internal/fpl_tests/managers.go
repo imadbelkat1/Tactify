@@ -62,10 +62,10 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	h.Route(ctx, cfg.Kafka.TopicsName.FplEntry)
-	h.Route(ctx, cfg.Kafka.TopicsName.FplEntryPicks)
-	h.Route(ctx, cfg.Kafka.TopicsName.FplEntryTransfers)
-	h.Route(ctx, cfg.Kafka.TopicsName.FplEntryHistory)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplEntry.Name)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplEntryPicks.Name)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplEntryTransfers.Name)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplEntryHistory.Name)
 
 	log.Println("✅ Manager indexer started, listening for manager data...")
 	log.Println("   - Manager Info topic:", cfg.Kafka.TopicsName.FplEntry)

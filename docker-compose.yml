@@ -1,27 +1,31 @@
 version: '3.9'
 
 services:
-  # Kafka Broker (KRaft mode - no Zookeeper needed)
+  # ----------------------------------------------------------------
+  # KAFKA (KRaft Mode)
+  # ----------------------------------------------------------------
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.6.1
     container_name: kafka
     ports:
-      - "9092:9092"
-      - "9093:9093"
+      - "9092:9092" # External access
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      # Listeners:
+      # - CONTROLLER:9093 (Internal controller communication)
+      # - PLAINTEXT:29092 (Internal Docker network communication)
+      # - PLAINTEXT_HOST:9092 (External/Host machine access)
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_DELETE_TOPIC_ENABLE: 'true'
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       CLUSTER_ID: 4L6g3nShT-eMCtK--X86sw
     volumes:
@@ -29,7 +33,26 @@ services:
     networks:
       - app-network
 
-  # Kafka UI
+  # ----------------------------------------------------------------
+  # INIT KAFKA (Runs once to create topics)
+  # ----------------------------------------------------------------
+  kafka-init:
+    image: confluentinc/cp-kafka:7.6.1
+    user: root
+    depends_on:
+      - kafka
+    volumes:
+      - ./kafka/scripts/init-topics.sh:/init-topics.sh
+      - ./kafka/topics.yaml:/config/topics.yaml
+    entrypoint: [ "/bin/bash", "/init-topics.sh" ]
+    networks:
+      - app-network
+
+
+
+  # ----------------------------------------------------------------
+  # KAFKA UI
+  # ----------------------------------------------------------------
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
@@ -43,22 +66,30 @@ services:
     networks:
       - app-network
 
-  # PostgreSQL Database
+  # ----------------------------------------------------------------
+  # POSTGRESQL (Auto-initializes DBs and Tables)
+  # ----------------------------------------------------------------
   postgresql:
-    image: postgres:latest
+    image: postgres:16
     container_name: postgresql
     environment:
-      POSTGRES_DB: tactify
+      POSTGRES_DB: tactify         # Default DB
       POSTGRES_USER: tactify
       POSTGRES_PASSWORD: admin
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./indexer-service/internal/db/migrations/01_init-dbs.sql:/docker-entrypoint-initdb.d/01_init_dbs.sql
+      - ./indexer-service/internal/db/migrations/02_create_fpl_tables.sql:/docker-entrypoint-initdb.d/02_create_fpl_tables.sql
+      - ./indexer-service/internal/db/migrations/03_create_sofascore_tables.sql:/docker-entrypoint-initdb.d/03_create_sofascore_tables.sql
+
     networks:
       - app-network
 
-  # pgAdmin - PostgreSQL Admin Panel
+  # ----------------------------------------------------------------
+  # PGADMIN
+  # ----------------------------------------------------------------
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin

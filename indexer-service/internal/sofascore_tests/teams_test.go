@@ -61,9 +61,9 @@ func TestTeamRepo(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	leagueStandingTopic := cfg.Kafka.TopicsName.SofascoreLeagueStandings
-	overallStatsTopic := cfg.Kafka.TopicsName.SofascoreTeamOverallStats
-	matchStatsTopic := cfg.Kafka.TopicsName.SofascoreTeamMatchStats
+	leagueStandingTopic := cfg.Kafka.TopicsName.SofascoreLeagueStandings.Name
+	overallStatsTopic := cfg.Kafka.TopicsName.SofascoreTeamOverallStats.Name
+	matchStatsTopic := cfg.Kafka.TopicsName.SofascoreTeamMatchStats.Name
 
 	h.Route(ctx, leagueStandingTopic)
 	h.Route(ctx, overallStatsTopic)

@@ -44,7 +44,7 @@ func (s *LiveEventApiService) GetLiveEvent(ctx context.Context, eventID int) (*f
 }
 
 func (s *LiveEventApiService) publishLiveEvent(ctx context.Context, liveEvent *fpl_models.LiveEvent, eventID int) error {
-	liveEventTopic := s.Config.KafkaConfig.TopicsName.FplLiveEvent
+	liveEventTopic := s.Config.KafkaConfig.TopicsName.FplLiveEvent.Name
 
 	jobs := make(chan fpl_models.LiveElement, len(liveEvent.Elements))
 

@@ -40,43 +40,43 @@ func NewHandler(
 	}
 
 	if teamRepo != nil {
-		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueStandings] = kafka.NewConsumer(
+		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueStandings.Name] = kafka.NewConsumer(
 			kafkaCfg,
-			kafkaCfg.TopicsName.SofascoreLeagueStandings,
+			kafkaCfg.TopicsName.SofascoreLeagueStandings.Name,
 			kafkaCfg.ConsumersGroupID.SofascoreLeagueStanding,
 		)
 
-		h.consumers[kafkaCfg.TopicsName.SofascoreTeamOverallStats] = kafka.NewConsumer(
+		h.consumers[kafkaCfg.TopicsName.SofascoreTeamOverallStats.Name] = kafka.NewConsumer(
 			kafkaCfg,
-			kafkaCfg.TopicsName.SofascoreTeamOverallStats,
+			kafkaCfg.TopicsName.SofascoreTeamOverallStats.Name,
 			kafkaCfg.ConsumersGroupID.SofascoreTeamOverallStats,
 		)
 
-		h.consumers[kafkaCfg.TopicsName.SofascoreTeamMatchStats] = kafka.NewConsumer(
+		h.consumers[kafkaCfg.TopicsName.SofascoreTeamMatchStats.Name] = kafka.NewConsumer(
 			kafkaCfg,
-			kafkaCfg.TopicsName.SofascoreTeamMatchStats,
+			kafkaCfg.TopicsName.SofascoreTeamMatchStats.Name,
 			kafkaCfg.ConsumersGroupID.SofascoreTeamMatchStats,
 		)
 	}
 
 	if matchRepo != nil {
-		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueRoundMatches] = kafka.NewConsumer(
+		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueRoundMatches.Name] = kafka.NewConsumer(
 			kafkaCfg,
-			kafkaCfg.TopicsName.SofascoreLeagueRoundMatches,
+			kafkaCfg.TopicsName.SofascoreLeagueRoundMatches.Name,
 			kafkaCfg.ConsumersGroupID.SofascoreLeagueRoundMatches,
 		)
 	}
 
 	if leagueRepo != nil {
-		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueIDs] = kafka.NewConsumer(
+		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueIDs.Name] = kafka.NewConsumer(
 			kafkaCfg,
-			kafkaCfg.TopicsName.SofascoreLeagueIDs,
+			kafkaCfg.TopicsName.SofascoreLeagueIDs.Name,
 			kafkaCfg.ConsumersGroupID.SofascoreLeagueRoundMatches,
 		)
 
-		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueSeasons] = kafka.NewConsumer(
+		h.consumers[kafkaCfg.TopicsName.SofascoreLeagueSeasons.Name] = kafka.NewConsumer(
 			kafkaCfg,
-			kafkaCfg.TopicsName.SofascoreLeagueSeasons,
+			kafkaCfg.TopicsName.SofascoreLeagueSeasons.Name,
 			kafkaCfg.ConsumersGroupID.SofascoreLeagueRoundMatches,
 		)
 	}
@@ -88,12 +88,12 @@ type HandlerFunc func(ctx context.Context)
 func (h *Handler) Route(ctx context.Context, topic string) {
 
 	handlers := map[string]HandlerFunc{
-		h.kafkaConfig.TopicsName.SofascoreLeagueStandings:    h.handleTeamsInfo,
-		h.kafkaConfig.TopicsName.SofascoreTeamOverallStats:   h.handleTeamStats,
-		h.kafkaConfig.TopicsName.SofascoreTeamMatchStats:     h.handleTeamMatchStat,
-		h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches: h.handleLeagueRoundMatches,
-		h.kafkaConfig.TopicsName.SofascoreLeagueIDs:          h.handleLeagueInfo,
-		h.kafkaConfig.TopicsName.SofascoreLeagueSeasons:      h.handleLeagueSeasonsInfo,
+		h.kafkaConfig.TopicsName.SofascoreLeagueStandings.Name:    h.handleTeamsInfo,
+		h.kafkaConfig.TopicsName.SofascoreTeamOverallStats.Name:   h.handleTeamStats,
+		h.kafkaConfig.TopicsName.SofascoreTeamMatchStats.Name:     h.handleTeamMatchStat,
+		h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches.Name: h.handleLeagueRoundMatches,
+		h.kafkaConfig.TopicsName.SofascoreLeagueIDs.Name:          h.handleLeagueInfo,
+		h.kafkaConfig.TopicsName.SofascoreLeagueSeasons.Name:      h.handleLeagueSeasonsInfo,
 	}
 
 	if fn, ok := handlers[topic]; ok {
@@ -225,10 +225,10 @@ func batchProcessWithSlice[T any, K comparable](
 func (h *Handler) handleTeamsInfo(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueStandings],
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueStandings.Name],
 		1,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.SofascoreLeagueStandings,
+		h.kafkaConfig.TopicsName.SofascoreLeagueStandings.Name,
 		func(t sofascore_models.StandingMessage) string {
 			return fmt.Sprintf("%d", time.Now().UnixNano())
 		},
@@ -239,10 +239,10 @@ func (h *Handler) handleTeamsInfo(ctx context.Context) {
 func (h *Handler) handleTeamStats(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.SofascoreTeamOverallStats],
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreTeamOverallStats.Name],
 		1,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.SofascoreTeamOverallStats,
+		h.kafkaConfig.TopicsName.SofascoreTeamOverallStats.Name,
 		func(t sofascore_models.TeamOverallStatsMessage) string {
 			return fmt.Sprintf("%d", time.Now().UnixNano())
 		},
@@ -253,10 +253,10 @@ func (h *Handler) handleTeamStats(ctx context.Context) {
 func (h *Handler) handleTeamMatchStat(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.SofascoreTeamMatchStats],
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreTeamMatchStats.Name],
 		1,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.SofascoreTeamMatchStats,
+		h.kafkaConfig.TopicsName.SofascoreTeamMatchStats.Name,
 		func(t sofascore_models.MatchStatsMessage) string {
 			return fmt.Sprintf("%d", time.Now().UnixNano())
 		},
@@ -267,10 +267,10 @@ func (h *Handler) handleTeamMatchStat(ctx context.Context) {
 func (h *Handler) handleLeagueRoundMatches(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches],
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches.Name],
 		1,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches,
+		h.kafkaConfig.TopicsName.SofascoreLeagueRoundMatches.Name,
 		func(t sofascore_models.Event) string {
 			return fmt.Sprintf("%d", time.Now().UnixNano())
 		},
@@ -281,10 +281,10 @@ func (h *Handler) handleLeagueRoundMatches(ctx context.Context) {
 func (h *Handler) handleLeagueInfo(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueIDs],
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueIDs.Name],
 		1,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.SofascoreLeagueIDs,
+		h.kafkaConfig.TopicsName.SofascoreLeagueIDs.Name,
 		func(l sofascore_models.LeagueUniqueTournaments) string {
 			return fmt.Sprintf("%d", time.Now().UnixNano())
 		},
@@ -295,10 +295,10 @@ func (h *Handler) handleLeagueInfo(ctx context.Context) {
 func (h *Handler) handleLeagueSeasonsInfo(ctx context.Context) {
 	batchProcess(
 		ctx,
-		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueSeasons],
+		h.consumers[h.kafkaConfig.TopicsName.SofascoreLeagueSeasons.Name],
 		1,
 		h.config.FlushInterval,
-		h.kafkaConfig.TopicsName.SofascoreLeagueSeasons,
+		h.kafkaConfig.TopicsName.SofascoreLeagueSeasons.Name,
 		func(l sofascore_models.Seasons) string {
 			return fmt.Sprintf("%d", time.Now().UnixNano())
 		},

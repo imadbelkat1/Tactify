@@ -103,7 +103,7 @@ func (l *MatchLineupService) processMatchLineup(lineup *sofascore_models.MatchLi
 }
 
 func (l *MatchLineupService) publishPlayer(ctx context.Context, player *sofascore_models.PlayerMatchStatsMessage) error {
-	playersStatsTopic := l.Config.KafkaConfig.TopicsName.SofascorePlayerMatchStats
+	playersStatsTopic := l.Config.KafkaConfig.TopicsName.SofascorePlayerMatchStats.Name
 
 	value, err := json.Marshal(player)
 	if err != nil {

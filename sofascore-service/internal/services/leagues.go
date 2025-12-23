@@ -42,7 +42,7 @@ func (l *LeagueService) GetLeagueInfo(ctx context.Context, countryId int) (*sofa
 }
 
 func (l *LeagueService) UpdateLeagueIDs(ctx context.Context) error {
-	leagueIdsTopic := l.Config.KafkaConfig.TopicsName.SofascoreLeagueIDs
+	leagueIdsTopic := l.Config.KafkaConfig.TopicsName.SofascoreLeagueIDs.Name
 
 	leagueCountries, err := l.GetLeagueCountries(ctx)
 	if err != nil {

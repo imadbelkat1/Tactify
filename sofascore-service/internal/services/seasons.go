@@ -33,7 +33,7 @@ func (s *SeasonService) GetLeagueSeasons(ctx context.Context, leagueId int) (*so
 }
 
 func (s *SeasonService) UpdateLeaguesSeasons(ctx context.Context, leagueId int) error {
-	leagueSeasonsTopic := s.Config.KafkaConfig.TopicsName.SofascoreLeagueSeasons
+	leagueSeasonsTopic := s.Config.KafkaConfig.TopicsName.SofascoreLeagueSeasons.Name
 
 	leagueSeasons, err := s.GetLeagueSeasons(ctx, leagueId)
 	if err != nil {

@@ -63,11 +63,11 @@ func main() {
 	defer cancel()
 
 	// Start consuming all three player topics
-	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayersBootstrap)
-	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayersStats)
-	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayerMatchStats)
-	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayerHistoryStats)
-	h.Route(ctx, cfg.Kafka.TopicsName.FplLiveEvent)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayersBootstrap.Name)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayersStats.Name)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayerMatchStats.Name)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplPlayerHistoryStats.Name)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplLiveEvent.Name)
 
 	log.Println("✅ Player indexer started, listening for player data...")
 	log.Println("   - Player bootstrap topic:", cfg.Kafka.TopicsName.FplPlayersBootstrap)

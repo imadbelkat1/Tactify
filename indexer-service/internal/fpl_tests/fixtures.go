@@ -58,7 +58,7 @@ func main() {
 	defer cancel()
 
 	// Start consuming fixtures ONLY
-	h.Route(ctx, cfg.Kafka.TopicsName.FplFixtures)
+	h.Route(ctx, cfg.Kafka.TopicsName.FplFixtures.Name)
 
 	log.Println("✅ Fixture indexer started, listening for fixtures...")
 
